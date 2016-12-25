@@ -2,7 +2,7 @@ package math
 
 import (
 	"testing"
-	"github.com/hezila/hezila/tree/master/utils"
+	"github.com/hezila/hezila/utils"
 )
 
 func TestCopy(t *testing.T) {
