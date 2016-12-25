@@ -1,0 +1,14 @@
+package: github.com/hezila/hezila
+import:
+- package: github.com/Sirupsen/logrus
+- package: github.com/kisielk/cmd
+- package: github.com/spf13/pflag
+- package: github.com/stretchr/testify
+  subpackages:
+  - assert
+- package: golang.org/x/time
+  subpackages:
+  - rate
+- package: golang.org/x/net
+  subpackages:
+  - http2
