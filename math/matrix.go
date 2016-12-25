@@ -37,6 +37,8 @@ type Matrix interface {
 
 	// The pretty-print string
 	String() string
+
+	SparseMatrix() *SparseMatrix
 }
 
 type matrix struct {

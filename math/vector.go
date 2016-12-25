@@ -79,9 +79,13 @@ func (v *Vector) IsSparse() bool {
 
 func (v *Vector) Indexes() []int {
 	if v.isSparse {
-		return v.sparse_values.keys
+		indexes := make([]int, 0, len(v.sparse_values))
+		for k := range v.sparse_values {
+			indexes = append(indexes, k)
+		}
+		return keys
 	} else {
-		indexes = make([]int, len(v.values))
+		indexes := make([]int, len(v.values))
 		for i := 0; i < len(v.values); i++ {
 			indexes[i] = i
 		}
@@ -151,7 +155,7 @@ func (v *Vector) SetValues(values []float64) {
 
 // v_i = v_i + alpha * o_i
 func (v *Vector) Increament(o *Vector, alpha float64) {
-	if !v.IsHomogeneous(that) {
+	if !v.IsHomogeneous(o) {
 		log.Fatal("cannot perform the increment opertion on two different type of vectors")
 	}
 	if v.isSparse {

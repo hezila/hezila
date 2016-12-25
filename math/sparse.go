@@ -124,7 +124,7 @@ func (M *SparseMatrix) SubMatrix(i, j, rows, cols int) *SparseMatrix {
 
 	for index, value := range M.elements {
 		r, c := M.GetRowColIndex(index)
-		if r < i+row && c < j+cols {
+		if r < i+rows && c < j+cols {
 			S.Set(r-i, c-j, value)
 		}
 	}
