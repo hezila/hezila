@@ -39,7 +39,7 @@ func (M *SparseMatrix) GetRowIndex(index int) (i int) {
 	return
 }
 
-func (M *SparseMatrix) GetRowIndex(index int) (j int) {
+func (M *SparseMatrix) GetColIndex(index int) (j int) {
 	j = (index - M.offset) % M.step
 	return
 }
@@ -113,7 +113,7 @@ func (M *SparseMatrix) Indices() (out chan int) {
 	return
 }
 
-func (M *SparseMatrix) SubMatrix(i, j, row, cols int) *SparseMatrix {
+func (M *SparseMatrix) SubMatrix(i, j, rows, cols int) *SparseMatrix {
 	if i < 0 || j < 0 || i+rows > M.rows || j+cols > M.cols {
 		i = maxInt(0, i)
 		j = maxInt(0, j)
@@ -149,12 +149,12 @@ func (A *SparseMatrix) Augment(B *SparseMatrix) (*SparseMatrix, error) {
 	C := ZerosSparse(A.rows, A.cols+B.cols)
 
 	for index, value := range A.elements {
-		i, j = A.GetRowColIndex(index)
+		i, j := A.GetRowColIndex(index)
 		C.Set(i, j, value)
 	}
 
 	for index, value := range B.elements {
-		i, j = B.GetRowColIndex(index)
+		i, j := B.GetRowColIndex(index)
 		C.Set(i, j+A.cols, value)
 	}
 
