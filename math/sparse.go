@@ -1,4 +1,4 @@
-package math_core
+package math
 
 import (
 	"math/rand"
