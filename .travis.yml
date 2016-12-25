@@ -14,5 +14,4 @@ install:
   - make setup-ci
 
 script:
-  - go test -v ./..
   - make test-race
