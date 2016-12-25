@@ -2,13 +2,18 @@ language: go
 
 go:
   - 1.7
-  - 1.6
-  - 1.5
-  - master
 
 services:
   - memcached
   - redis
 
+before_install:
+  - go get -v github.com/bradfitz/gomemcache/memcache
+
+install:
+  - make setup-ci
+
+
 script:
   - go test -v ./..
+  - make test-race
