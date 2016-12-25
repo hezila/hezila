@@ -46,7 +46,7 @@ func (v *Vector) Clear() {
 }
 
 // Check whether the both vector is homogeneous (both dense or sparse)
-func (v *Vector) isHomogeneous(that *Vector) bool {
+func (v *Vector) IsHomogeneous(that *Vector) bool {
 	if v.isSparse {
 		if that.isSparse {
 			return true
@@ -83,7 +83,7 @@ func (v *Vector) Indexes() []int {
 		for k := range v.sparse_values {
 			indexes = append(indexes, k)
 		}
-		return keys
+		return indexes
 	} else {
 		indexes := make([]int, len(v.values))
 		for i := 0; i < len(v.values); i++ {

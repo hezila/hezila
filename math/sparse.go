@@ -211,7 +211,8 @@ func (M *SparseMatrix) Copy() *SparseMatrix {
 	return C
 }
 
-func (M *SparseMatrix) String() string { return String(M) }
+// TODO: fix error
+// func (M *SparseMatrix) String() string { return String(M) }
 
 func ZerosSparse(rows, cols int) *SparseMatrix {
 	M := new(SparseMatrix)
