@@ -1,4 +1,4 @@
-package util
+package utils
 
 // CommonError common error message in the format of json
 type CommonError struct {
