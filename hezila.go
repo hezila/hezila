@@ -1,7 +1,5 @@
 package hezila
 
-package wechat
-
 import (
 	"net/http"
 	"sync"
