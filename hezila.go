@@ -18,5 +18,5 @@ type Config struct {
 
 // NewHezila init
 func NewHezila(cfg *Config) *Hezila {
-
+	return nil
 }
