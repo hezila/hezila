@@ -17,7 +17,7 @@ setup-ci:
 
 fmt:
 	gofmt -w=true -s $$(find . -type f -name '*.go')
-	# goimports -w=true -d $$(find . -type f -name '*.go')
+	goimports -w=true -d $$(find . -type f -name '*.go')
 
 test:
 	go test $$(glide nv)
