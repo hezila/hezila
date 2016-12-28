@@ -1,6 +1,12 @@
-REPO_VERSION := $$(git describe --abbrev=0 --tags)
+HEZILA_GO_EXECUTABLE ?= go
+DIST_DIRS := find * -type d -exec
+VERSION := $$(git describe --abbrev=0 --tags)
 BUILD_DATE := $$(date +%Y-%m-%d-%H:%M)
 GOVERSION := 1.7
+
+build:
+	${HEZILA_GO_EXECUTABLE} build -o glide -ldflags "-X main.version=${VERSION}" hezila.go
+
 
 
 setup: setup-ci
