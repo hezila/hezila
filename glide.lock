@@ -1,0 +1,14 @@
+hash: 030a9c723567556de9a159852e634fa2b045fc99bcf458ab1d81baf53bddc201
+updated: 2016-12-28T14:47:47.298145658Z
+imports:
+- name: github.com/bradfitz/gomemcache
+  version: 2fafb84a66c4911e11a8f50955b01e74fe3ab9c5
+  subpackages:
+  - memcache
+- name: github.com/hezila/hezila
+  version: e2fca3f9852d915b86c9f5b47872a0c03e30aa78
+  subpackages:
+  - cache
+- name: github.com/Masterminds/cookoo
+  version: 78aa11ce75e257c51be7ea945edb84cf19c4a6de
+testImports: []
