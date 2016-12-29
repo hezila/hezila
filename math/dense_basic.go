@@ -1,16 +1,15 @@
 package math
 
-
 import (
-	"math"
 	"errors"
+	"math"
 )
 
 func (A *DenseMatrix) Symmetric() bool {
 	if A.rows != A.cols {
 		return false
 	}
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		for j = 0; j < i; j++ {
 			if A.Get(i, j) != A.Get(j, i) {
@@ -24,7 +23,7 @@ func (A *DenseMatrix) Symmetric() bool {
 func (m *DenseMatrix) SwapRows(r1, r2 uint) {
 	index1 := r1 * m.step
 	index2 := r2 * m.step
-    var j uint
+	var j uint
 	for j = 0; j < m.cols; j++ {
 		m.elements[index1], m.elements[index2] = m.elements[index2], m.elements[index1]
 		index1++
@@ -34,7 +33,7 @@ func (m *DenseMatrix) SwapRows(r1, r2 uint) {
 
 func (m *DenseMatrix) ScaleRow(r uint, f float64) {
 	index := r * m.step
-    var j uint
+	var j uint
 	for j = 0; j < m.cols; j++ {
 		m.elements[index] *= f
 		index++
@@ -44,7 +43,7 @@ func (m *DenseMatrix) ScaleRow(r uint, f float64) {
 func (m *DenseMatrix) ScaleAddRow(rd, rs uint, f float64) {
 	indexd := rd * m.step
 	indexs := rs * m.step
-    var j uint
+	var j uint
 	for j = 0; j < m.cols; j++ {
 		m.elements[indexd] += f * m.elements[indexs]
 		indexd++
@@ -57,7 +56,7 @@ func (A *DenseMatrix) Inverse() (*DenseMatrix, error) {
 		return nil, ErrorDimensionMismatch
 	}
 	aug, _ := A.Augment(Eye(A.Rows()))
-    var i uint
+	var i uint
 	for i = 0; i < aug.Rows(); i++ {
 		j := i
 		for k := i; k < aug.Rows(); k++ {
@@ -72,7 +71,7 @@ func (A *DenseMatrix) Inverse() (*DenseMatrix, error) {
 			return nil, ExceptionSingular
 		}
 		aug.ScaleRow(i, 1.0/aug.Get(i, i))
-        var k uint = 0
+		var k uint = 0
 		for ; k < aug.Rows(); k++ {
 			if k == i {
 				continue
@@ -93,7 +92,7 @@ func (A *DenseMatrix) Det() float64 {
 func (A *DenseMatrix) Trace() float64 { return sum(A.DiagonalCopy()) }
 
 func (A *DenseMatrix) OneNorm() (ε float64) {
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		for j = 0; j < A.cols; j++ {
 			ε = max(ε, A.Get(i, j))
@@ -104,7 +103,7 @@ func (A *DenseMatrix) OneNorm() (ε float64) {
 
 func (A *DenseMatrix) TwoNorm() float64 {
 	var sum float64 = 0
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		for j = 0; j < A.cols; j++ {
 			v := A.elements[i*A.step+j]
@@ -115,7 +114,7 @@ func (A *DenseMatrix) TwoNorm() float64 {
 }
 
 func (A *DenseMatrix) InfinityNorm() (e float64) {
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		for j = 0; j < A.cols; j++ {
 			e += A.Get(i, j)
@@ -126,7 +125,7 @@ func (A *DenseMatrix) InfinityNorm() (e float64) {
 
 func (A *DenseMatrix) Transpose() *DenseMatrix {
 	B := Zeros(A.Cols(), A.Rows())
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.Rows(); i++ {
 		for j = 0; j < A.Cols(); j++ {
 			B.Set(j, i, A.Get(i, j))
@@ -140,7 +139,7 @@ func (A *DenseMatrix) TransposeInPlace() (err error) {
 		err = errors.New("Can only transpose a square matrix in place")
 		return
 	}
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		for j = 0; j < i; j++ {
 			tmp := A.Get(i, j)
@@ -153,7 +152,7 @@ func (A *DenseMatrix) TransposeInPlace() (err error) {
 
 func solveLower(A *DenseMatrix, b Matrix) *DenseMatrix {
 	x := make([]float64, A.Cols())
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.Rows(); i++ {
 		x[i] = b.Get(i, 0)
 		for j = 0; j < i; j++ {
@@ -195,5 +194,3 @@ func (A *DenseMatrix) Solve(b MatrixRO) (*DenseMatrix, error) {
 func (A *DenseMatrix) SolveDense(b *DenseMatrix) (*DenseMatrix, error) {
 	return A.Solve(b)
 }
-
-

@@ -28,6 +28,16 @@ func MakeSparseMatrix(elements map[uint]float64, rows, cols uint) *SparseMatrix 
 	return M
 }
 
+// TODO: to implements
+func (M *SparseMatrix) Arrays() [][]float64 {
+	return nil
+}
+
+// TODO: to implements
+func (M *SparseMatrix) Array() []float64 {
+	return nil
+}
+
 func (M *SparseMatrix) GetRowColIndex(index uint) (i, j uint) {
 	i = (index - M.offset) / M.step
 	j = (index - M.offset) % M.step
@@ -211,8 +221,7 @@ func (M *SparseMatrix) Copy() *SparseMatrix {
 	return C
 }
 
-// TODO: fix error
-// func (M *SparseMatrix) String() string { return String(M) }
+//func (M *SparseMatrix) String() string { return String(M) }
 
 func ZerosSparse(rows, cols uint) *SparseMatrix {
 	M := new(SparseMatrix)
@@ -230,7 +239,7 @@ func OnesSparse(rows, cols uint) *SparseMatrix {
 	O.cols = cols
 	O.step = cols
 	O.elements = map[uint]float64{}
-    var i uint = 0
+	var i uint = 0
 	for ; i < cols*cols; i++ {
 		O.elements[i] = 1
 	}
@@ -239,7 +248,7 @@ func OnesSparse(rows, cols uint) *SparseMatrix {
 
 func EyeSparse(size uint) *SparseMatrix {
 	E := ZerosSparse(size, size)
-    var i uint = 0
+	var i uint = 0
 	for ; i < size; i++ {
 		E.Set(i, i, 1)
 	}
@@ -248,7 +257,7 @@ func EyeSparse(size uint) *SparseMatrix {
 
 func NormalsSparse(rows, cols uint) *SparseMatrix {
 	N := ZerosSparse(rows, cols)
-    var i, j uint
+	var i, j uint
 	for i = 0; i < rows; i++ {
 		for j = 0; j < cols; j++ {
 			N.Set(i, j, rand.NormFloat64())
@@ -266,9 +275,27 @@ func NormalsSparse(rows, cols uint) *SparseMatrix {
 //	return D
 //}
 
+/*
+Convert this sparse matrix into a dense matrix.
+*/
+func (A *SparseMatrix) DenseMatrix() *DenseMatrix {
+	B := Zeros(A.rows, A.cols)
+	for index, value := range A.elements {
+		i, j := A.GetRowColIndex(index)
+		B.Set(i, j, value)
+	}
+	return B
+}
+
+func (A *SparseMatrix) SparseMatrix() *SparseMatrix {
+	return A.Copy()
+}
+
+func (A *SparseMatrix) String() string { return String(A) }
+
 func MakeSparseCopy(M Matrix) *SparseMatrix {
 	A := ZerosSparse(M.Rows(), M.Cols())
-    var i, j uint
+	var i, j uint
 	for i = 0; i < M.Rows(); i++ {
 		for j = 0; j < M.Cols(); j++ {
 			A.Set(i, j, M.Get(i, j))

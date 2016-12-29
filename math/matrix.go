@@ -192,7 +192,7 @@ func String(M MatrixRO) string {
 	s := "{"
 
 	var maxLen uint = 0
-    var i, j uint
+	var i, j uint
 	for i = 0; i < M.Rows(); i++ {
 		for j = 0; j < M.Cols(); j++ {
 			v := M.Get(i, j)

@@ -5,9 +5,19 @@ A space-optimized structure for pivot matrices, ie a matrix with
 exactly one 1 in each row and each column.
 */
 type PivotMatrix struct {
-    matrix
-    pivots    []uint
-    pivotSign float64
+	matrix
+	pivots    []uint
+	pivotSign float64
+}
+
+// TODO: to implements
+func (P *PivotMatrix) Arrays() [][]float64 {
+	return nil
+}
+
+// TODO: to implements
+func (P *PivotMatrix) Array() []float64 {
+	return nil
 }
 
 func (P *PivotMatrix) Get(i, j uint) float64 {

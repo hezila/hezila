@@ -26,11 +26,12 @@ func (P *PivotMatrix) Times(A MatrixRO) (Matrix, error) {
 		return nil, ErrorDimensionMismatch
 	}
 	B := Zeros(P.rows, A.Cols())
-	for i := 0; i < P.rows; i++ {
-		k := 0
+	var i, j, k uint
+	for i = 0; i < P.rows; i++ {
+		k = 0
 		for ; i != P.pivots[k]; k++ {
 		}
-		for j := 0; j < A.Cols(); j++ {
+		for j = 0; j < A.Cols(); j++ {
 			B.Set(i, j, A.Get(k, j))
 		}
 	}
@@ -45,10 +46,10 @@ func (P *PivotMatrix) TimesPivot(A *PivotMatrix) (*PivotMatrix, error) {
 		return nil, ErrorDimensionMismatch
 	}
 
-	newPivots := make([]int, P.rows)
+	newPivots := make([]uint, P.rows)
 	newSign := P.pivotSign * A.pivotSign
-
-	for i := 0; i < A.rows; i++ {
+	var i uint
+	for i = 0; i < A.rows; i++ {
 		newPivots[i] = P.pivots[A.pivots[i]]
 	}
 
@@ -63,12 +64,12 @@ func (P *PivotMatrix) RowPivotDense(A *DenseMatrix) (*DenseMatrix, error) {
 		return nil, ErrorDimensionMismatch
 	}
 	B := Zeros(A.rows, A.cols)
-    var si uint
+	var si uint
 	for si = 0; si < A.rows; si++ {
 		di := P.pivots[si]
 		Astart := si * A.step
 		Bstart := di * B.step
-        var j uint
+		var j uint
 		for j = 0; j < A.cols; j++ {
 			B.elements[Bstart+j] = A.elements[Astart+j]
 		}
@@ -84,11 +85,11 @@ func (P *PivotMatrix) ColPivotDense(A *DenseMatrix) (*DenseMatrix, error) {
 		return nil, ErrorDimensionMismatch
 	}
 	B := Zeros(A.rows, A.cols)
-    var i uint
+	var i uint
 	for i = 0; i < B.rows; i++ {
 		Astart := i * A.step
 		Bstart := i * B.step
-        var sj uint
+		var sj uint
 		for sj = 0; sj < B.cols; sj++ {
 			dj := P.pivots[sj]
 			B.elements[Bstart+dj] = A.elements[Astart+sj]

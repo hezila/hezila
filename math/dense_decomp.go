@@ -12,12 +12,12 @@ func (A *DenseMatrix) LUInPlace() (P *PivotMatrix) {
 	LUcolj := make([]float64, m)
 	LUrowi := make([]float64, n)
 	piv := make([]uint, m)
-    var i, j, k uint
+	var i, j, k uint
 	for i = 0; i < m; i++ {
 		piv[i] = i
 	}
 	pivsign := float64(1.0)
-    
+
 	for j = 0; j < n; j++ {
 		A.BufferCol(j, LUcolj)
 		for i = 0; i < m; i++ {
@@ -60,4 +60,3 @@ func (A *DenseMatrix) LUInPlace() (P *PivotMatrix) {
 
 	return
 }
-

@@ -1,5 +1,7 @@
 package math
 
+import "runtime"
+
 func fibonacci() func() int {
 	var x, y int = -1, 1
 	return func() int {
@@ -23,10 +25,10 @@ func maxInt(x, y int) int {
 }
 
 func maxUInt(x, y uint) uint {
-     if x > y {
-        return x
-     }
-     return y
+	if x > y {
+		return x
+	}
+	return y
 }
 
 func min(x, y float64) float64 {
@@ -44,10 +46,10 @@ func minInt(x, y int) int {
 }
 
 func minUInt(x, y uint) uint {
-     if x < y {
-        return x
-     }
-     return y
+	if x < y {
+		return x
+	}
+	return y
 }
 
 func sum(a []float64) (s float64) {
@@ -79,7 +81,7 @@ func countBoxes(start, cap uint) chan box {
 }
 
 func parFor(inputs <-chan box, foo func(i box)) (wait func()) {
-	n := runtime.GOMAXPROCS(0)
+	n := uint(runtime.GOMAXPROCS(0))
 	block := make(chan bool, n)
 	var j uint
 	for j = 0; j < n; j++ {

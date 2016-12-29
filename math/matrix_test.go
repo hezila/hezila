@@ -5,7 +5,7 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	s := `[1 2 3;4 5 7]`
+	s := `[1 2 3;4 5 6]`
 	A, err := ParseMatlab(s)
 
 	if err != nil {

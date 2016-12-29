@@ -29,7 +29,7 @@ func (A *DenseMatrix) Add(B MatrixRO) error {
 	if A.cols != B.Cols() || A.rows != B.Rows() {
 		return ErrorDimensionMismatch
 	}
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		index := i * A.step
 		for j = 0; j < A.cols; j++ {
@@ -45,7 +45,7 @@ func (A *DenseMatrix) AddDense(B *DenseMatrix) error {
 	if A.cols != B.cols || A.rows != B.rows {
 		return ErrorDimensionMismatch
 	}
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		for j = 0; j < A.cols; j++ {
 			A.elements[i*A.step+j] += B.elements[i*B.step+j]
@@ -63,7 +63,7 @@ func (A *DenseMatrix) Subtract(B MatrixRO) error {
 	if A.cols != B.Cols() || A.rows != B.Rows() {
 		return ErrorDimensionMismatch
 	}
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		index := i * A.step
 		for j = 0; j < A.cols; j++ {
@@ -81,7 +81,7 @@ func (A *DenseMatrix) SubtractDense(B *DenseMatrix) error {
 		return ErrorDimensionMismatch
 	}
 
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		indexA := i * A.step
 		indexB := i * B.step
@@ -106,7 +106,7 @@ func (A *DenseMatrix) Times(B MatrixRO) (Matrix, error) {
 		return nil, ErrorDimensionMismatch
 	}
 	C := Zeros(A.rows, B.Cols())
-    var i, j, k uint
+	var i, j, k uint
 	for i = 0; i < A.rows; i++ {
 		for j = 0; j < B.Cols(); j++ {
 			sum := float64(0)
@@ -133,7 +133,7 @@ func parTimes1(A, B, C *DenseMatrix) {
 
 	go func() {
 		rowCount := A.rows / uint(mp)
-        var startRow uint
+		var startRow uint
 		for startRow = 0; startRow < A.rows; startRow += rowCount {
 			start := startRow
 			finish := startRow + rowCount
@@ -149,7 +149,7 @@ func parTimes1(A, B, C *DenseMatrix) {
 		job := iBox.(parJob)
 		for i := job.start; i < job.finish; i++ {
 			sums := C.elements[i*C.step : (i+1)*C.step]
-            var k, j uint
+			var k, j uint
 			for k = 0; k < A.cols; k++ {
 				for j = 0; j < B.cols; j++ {
 					sums[j] += A.elements[i*A.step+k] * B.elements[k*B.step+j]
@@ -242,12 +242,12 @@ func (A *DenseMatrix) TimesDenseFill(B, C *DenseMatrix) (err error) {
 		case A.cols > 100 && WhichSyncMethod == 2:
 			transposeTimes(A, B, C)
 		default:
-            var i uint
+			var i uint
 			for i = 0; i < A.rows; i++ {
 				sums := C.elements[i*C.step : (i+1)*C.step]
-				for k, a := range A.elements[i*A.step : i*A.step + A.cols] {
-                    k := uint(k)
-					for j, b := range B.elements[k*B.step : k * B.step + B.cols] {
+				for k, a := range A.elements[i*A.step : i*A.step+A.cols] {
+					k := uint(k)
+					for j, b := range B.elements[k*B.step : k*B.step+B.cols] {
 						sums[j] += a * b
 					}
 				}
@@ -262,7 +262,7 @@ func transposeTimes(A, B, C *DenseMatrix) {
 	Bt := B.Transpose()
 
 	Bcols := Bt.Arrays()
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		Arow := A.elements[i*A.step : i*A.step+A.cols]
 		for j = 0; j < B.cols; j++ {
@@ -289,7 +289,7 @@ func (A *DenseMatrix) ElementMultDense(B *DenseMatrix) (*DenseMatrix, error) {
 }
 
 func (A *DenseMatrix) Scale(f float64) {
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		index := i * A.step
 		for j = 0; j < A.cols; j++ {
@@ -307,7 +307,7 @@ func (A *DenseMatrix) ScaleMatrix(B MatrixRO) error {
 	if A.rows != B.Rows() || A.cols != B.Cols() {
 		return ErrorDimensionMismatch
 	}
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		indexA := i * A.step
 		for j = 0; j < A.cols; j++ {
@@ -322,7 +322,7 @@ func (A *DenseMatrix) ScaleMatrixDense(B *DenseMatrix) error {
 	if A.rows != B.rows || A.cols != B.cols {
 		return ErrorDimensionMismatch
 	}
-    var i, j uint
+	var i, j uint
 	for i = 0; i < A.rows; i++ {
 		indexA := i * A.step
 		indexB := i * B.step

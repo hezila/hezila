@@ -16,7 +16,7 @@ func (P *PivotMatrix) SwapRows(r1, r2 uint) error {
 }
 
 func (P *PivotMatrix) Symmetric() bool {
-    var i uint
+	var i uint
 	for i = 0; i < P.rows; i++ {
 		if P.pivots[P.pivots[i]] != i {
 			return false
@@ -28,8 +28,8 @@ func (P *PivotMatrix) Symmetric() bool {
 func (A *PivotMatrix) Inverse() *PivotMatrix { return A.Transpose() }
 
 func (P *PivotMatrix) Transpose() *PivotMatrix {
-	newPivots := make([]int, P.rows)
-    var i uint
+	newPivots := make([]uint, P.rows)
+	var i uint
 	for i = 0; i < P.rows; i++ {
 		newPivots[P.pivots[i]] = i
 	}
@@ -39,8 +39,8 @@ func (P *PivotMatrix) Transpose() *PivotMatrix {
 func (P *PivotMatrix) Det() float64 { return P.pivotSign }
 
 func (P *PivotMatrix) Trace() (r float64) {
-    var i uint
-	for i = 0; i < len(P.pivots); i++ {
+	var i uint
+	for i = 0; i < uint(len(P.pivots)); i++ {
 		if P.pivots[i] == i {
 			r += 1
 		}
@@ -58,4 +58,3 @@ func (P *PivotMatrix) Solve(b MatrixRO) (Matrix, error) {
 func (A *PivotMatrix) OneNorm() float64      { return float64(A.rows) }
 func (A *PivotMatrix) TwoNorm() float64      { return math.Sqrt(float64(A.rows)) }
 func (A *PivotMatrix) InfinityNorm() float64 { return 1 }
-
