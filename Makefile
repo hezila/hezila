@@ -1,5 +1,9 @@
 HEZILA_GO_EXECUTABLE ?= go
 DIST_DIRS := find * -type d -exec
+GIT_COMMIT=`git rev-parse --short HEAD`
+GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
+# NOTE: the `git tag` command is filtered through `grep .` so it returns non-zero when empty
+GIT_TAG=`git tag --list "v*" --sort "v:refname" --points-at HEAD 2>/dev/null | tail -n 1 | grep . || echo "none"`
 VERSION := $$(git describe --abbrev=0 --tags)
 GOVERSION := 1.7
 
@@ -70,3 +74,5 @@ version:
 
 clean:
 	rm -f build/bin/*
+
+.PHONY: all clean dev release test
