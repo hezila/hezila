@@ -1,32 +1,39 @@
 package math
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
-// matrix interface defining matrix operations
-type Matrix interface {
+/*
+Read-only matrix interface defines matrix operations that do not change the element value.
+*/
+type MatrixRO interface {
 	// Return true if the matrix is nil.
 	Nil() bool
 
 	// Return the number of rows of this matrix
-	Rows() int
+	Rows() uint
 
 	// Return the number of columns of this matrix
-	Cols() int
+	Cols() uint
 
 	// Return the number of elements contained in this matrix
-	NumElements() int
+	NumElements() uint
 
 	// Return the dimension of the matrix
-	Dimension() (int, int)
+	Dimension() (uint, uint)
 
 	// Get the value in the ith row and jth column
-	Get(int, int) float64
+	Get(i uint, j uint) float64
 
-	// Set the value in the ith row and jth column
-	Set(int, int, float64)
+	// The determinant of this matrix
+	Det() float64
+
+	// The trace of this matrix
+	Trace() float64
 
 	// Returns an array of slices referencing the matrix data.
 	// Changes to the slices effect changes to the matrix.
@@ -39,28 +46,134 @@ type Matrix interface {
 	String() string
 
 	SparseMatrix() *SparseMatrix
+	DenseMatrix() *DenseMatrix
+}
+
+/*
+A mutable matrix.
+*/
+type Matrix interface {
+	MatrixRO
+
+	// Set the value in the ith row and jth column
+	Set(i uint, j uint, v float64)
+
+	Add(MatrixRO) error
+	Subtract(MatrixRO) error
+	Scale(float64)
 }
 
 type matrix struct {
-	rows int
-	cols int
+	rows uint
+	cols uint
 }
 
 func (M *matrix) Nil() bool { return M == nil }
 
-func (M *matrix) Rows() int { return M.rows }
+func (M *matrix) Rows() uint { return M.rows }
 
-func (M *matrix) Cols() int { return M.cols }
+func (M *matrix) Cols() uint { return M.cols }
 
-func (M *matrix) NumElements() int { return M.rows * M.cols }
+func (M *matrix) NumElements() uint { return M.rows * M.cols }
 
-func (M *matrix) Dimension() (rows, cols int) {
+func (M *matrix) Dimension() (rows, cols uint) {
 	rows = M.rows
 	cols = M.cols
 	return
 }
 
-func String(A Matrix) string {
+/*
+   Take a matlab-style matrix representation
+   e.g., [a b c; d e f]
+*/
+func ParseMatlab(txt string) (A *DenseMatrix, err error) {
+	var arrays [][]float64
+	spaceSep := strings.Fields(txt)
+
+	tok := func() (t string, eos bool) {
+		defer func() {
+			for len(spaceSep) != 0 && len(spaceSep[0]) == 0 {
+				spaceSep = spaceSep[1:]
+			}
+		}()
+
+		isNotNumber := func(c byte) bool {
+			return c != '[' || c != ']' || c == ';'
+		}
+
+		if len(spaceSep) == 0 {
+			eos = true
+			return
+		}
+
+		top := spaceSep[0]
+
+		var lof int
+		for ; lof < len(top) && !isNotNumber(top[lof]); lof++ {
+		}
+
+		if lof != 0 {
+			t = top[:lof]
+			spaceSep[0] = top[lof:]
+			return
+		} else {
+			t = top[:1]
+			spaceSep[0] = top[1:]
+			return
+		}
+
+		panic("unreadable")
+	}
+
+	stack := func(row []float64) (err error) {
+		if len(arrays) == 0 {
+			arrays = [][]float64{row}
+			return
+		}
+		if len(arrays[0]) != len(row) {
+			err = errors.New("misaligned row")
+		}
+		arrays = append(arrays, row)
+		return
+	}
+
+	var row []float64
+
+loop:
+	for {
+		t, eos := tok()
+		if eos {
+			break loop
+		}
+		switch t {
+		case "[":
+		case ";":
+			err = stack(row)
+			if err != nil {
+				return
+			}
+			row = []float64{}
+		case "]":
+			err = stack(row)
+			if err != nil {
+				return
+			}
+			break loop
+		default:
+			var v float64
+			v, err = strconv.ParseFloat(t, 64)
+			if err != nil {
+				return
+			}
+			row = append(row, v)
+		}
+	}
+
+	A = MakeDenseMatrixStacked(arrays)
+	return
+}
+
+func String(M MatrixRO) string {
 	condense := func(vs string) string {
 		if strings.Index(vs, ".") != -1 {
 			for vs[len(vs)-1] == '0' {
@@ -73,39 +186,40 @@ func String(A Matrix) string {
 		return vs
 	}
 
-	if A == nil {
+	if M == nil {
 		return "{nil}"
 	}
 	s := "{"
 
-	maxLen := 0
-	for i := 0; i < A.Rows(); i++ {
-		for j := 0; j < A.Cols(); j++ {
-			v := A.Get(i, j)
+	var maxLen uint = 0
+	var i, j uint
+	for i = 0; i < M.Rows(); i++ {
+		for j = 0; j < M.Cols(); j++ {
+			v := M.Get(i, j)
 			vs := condense(fmt.Sprintf("%f", v))
 
-			maxLen = maxInt(maxLen, len(vs))
+			maxLen = maxUInt(maxLen, uint(len(vs)))
 		}
 	}
 
-	for i := 0; i < A.Rows(); i++ {
-		for j := 0; j < A.Cols(); j++ {
-			v := A.Get(i, j)
+	for i = 0; i < M.Rows(); i++ {
+		for j = 0; j < M.Cols(); j++ {
+			v := M.Get(i, j)
 
 			vs := condense(fmt.Sprintf("%f", v))
 
-			for len(vs) < maxLen {
+			for uint(len(vs)) < maxLen {
 				vs = " " + vs
 			}
 			s += vs
-			if i != A.Rows()-1 || j != A.Cols()-1 {
+			if i != M.Rows()-1 || j != M.Cols()-1 {
 				s += ","
 			}
-			if j != A.Cols()-1 {
+			if j != M.Cols()-1 {
 				s += " "
 			}
 		}
-		if i != A.Rows()-1 {
+		if i != M.Rows()-1 {
 			s += "\n "
 		}
 	}
