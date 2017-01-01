@@ -27,7 +27,7 @@ type MatrixRO interface {
 	Dimension() (uint, uint)
 
 	// Get the value in the ith row and jth column
-	Get(i uint, j uint) float64
+	Get(i, j uint) float64
 
 	// The determinant of this matrix
 	Det() float64
@@ -56,7 +56,7 @@ type Matrix interface {
 	MatrixRO
 
 	// Set the value in the ith row and jth column
-	Set(i uint, j uint, v float64)
+	Set(i, j uint, v float64)
 
 	Add(MatrixRO) error
 	Subtract(MatrixRO) error
@@ -109,7 +109,7 @@ func ParseMatlab(txt string) (A *DenseMatrix, err error) {
 		top := spaceSep[0]
 
 		var lof int
-		for ; lof < len(top) && !isNotNumber(top[lof]); lof++ {
+		for lof = 0; lof < len(top) && !isNotNumber(top[lof]); lof++ {
 		}
 
 		if lof != 0 {
@@ -212,7 +212,7 @@ func String(M MatrixRO) string {
 				vs = " " + vs
 			}
 			s += vs
-			if i != M.Rows()-1 || j != M.Cols()-1 {
+		 	if i != M.Rows()-1 || j != M.Cols()-1 {
 				s += ","
 			}
 			if j != M.Cols()-1 {
