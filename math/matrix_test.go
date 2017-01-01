@@ -22,6 +22,6 @@ func TestParse(t *testing.T) {
 
 func TestString(t *testing.T) {
 	A := MakeDenseMatrix([]float64{1, 2, 3, 4, 5, 6}, 2, 3)
-	s := `{1, 2, 3 \n 4, 5, 6}`
+	s := "{1, 2, 3,\n 4, 5, 6}"
 	utils.Expect(t, s, String(A))
 }

@@ -9,7 +9,7 @@ import (
 func Expect(t *testing.T, expect string, actual interface{}) {
 	actualString := fmt.Sprint(actual)
 	if expect != actualString {
-		t.Errorf("Expeted value=\"%s\", Actual value=\"%s\"", expect, actualString)
+		t.Errorf("Expected value=\"%s\", Actual value=\"%s\"", expect, actualString)
 	}
 }
 
