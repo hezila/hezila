@@ -67,18 +67,18 @@ func (M *SparseMatrix) Get(i, j uint) float64 {
 
 	v, ok := M.elements[i*M.step+j+M.offset]
 	if !ok {
-		return 0
+		return nil
 	}
 	return v
 }
 
 // Looks up an element given its element index
 func (M *SparseMatrix) GetValue(index uint) float64 {
-	x, ok := M.elements[index]
+	v, ok := M.elements[index]
 	if !ok {
-		return 0
+		return nil
 	}
-	return x
+	return v
 }
 
 func (M *SparseMatrix) Set(i, j uint, v float64) {
@@ -91,17 +91,17 @@ func (M *SparseMatrix) Set(i, j uint, v float64) {
 	if j < 0 {
 		j = M.cols + j
 	}
-
-	if v == 0 {
-		delete(M.elements, i*M.step+j+M.offset)
+	index = i*M.step + j + M.offset
+	if v == nil {
+		delete(M.elements, index)
 	} else {
-		M.elements[i*M.step+j+M.offset] = v
+		M.elements[index] = v
 	}
 
 }
 
 func (M *SparseMatrix) SetValue(index uint, v float64) {
-	if v == 0 {
+	if v == nil {
 		delete(M.elements, index)
 	} else {
 		M.elements[index] = v
@@ -114,7 +114,7 @@ func (M *SparseMatrix) Indices() (out chan uint) {
 	go func(o chan uint) {
 		for index := range M.elements {
 			i, j := M.GetRowColIndex(index)
-			if 0 <= i && i < M.rows && 0 <= j && j < M.cols {
+			if i >= 0 && i < M.rows && j >= 0 && j < M.cols {
 				o <- index
 			}
 		}
@@ -138,7 +138,6 @@ func (M *SparseMatrix) SubMatrix(i, j, rows, cols uint) *SparseMatrix {
 			S.Set(r-i, c-j, value)
 		}
 	}
-
 	return S
 }
 
@@ -185,7 +184,7 @@ func (A *SparseMatrix) Stack(B *SparseMatrix) (*SparseMatrix, error) {
 
 	for index, value := range B.elements {
 		i, j := B.GetRowColIndex(index)
-		C.Set(i, j, value)
+		C.Set(i+A.rows, j, value)
 	}
 
 	return C, nil
@@ -221,8 +220,6 @@ func (M *SparseMatrix) Copy() *SparseMatrix {
 	return C
 }
 
-//func (M *SparseMatrix) String() string { return String(M) }
-
 func ZerosSparse(rows, cols uint) *SparseMatrix {
 	M := new(SparseMatrix)
 	M.rows = rows
@@ -230,6 +227,10 @@ func ZerosSparse(rows, cols uint) *SparseMatrix {
 	M.offset = 0
 	M.step = cols
 	M.elements = map[uint]float64{}
+	var i uint
+	for i = 0; i < rows*cols; i++ {
+		M.elements[i] = 0
+	}
 	return M
 }
 
@@ -239,18 +240,18 @@ func OnesSparse(rows, cols uint) *SparseMatrix {
 	O.cols = cols
 	O.step = cols
 	O.elements = map[uint]float64{}
-	var i uint = 0
-	for ; i < cols*cols; i++ {
-		O.elements[i] = 1
+	var i uint
+	for i = 0; i < cols*cols; i++ {
+		O.elements[i] = 1.0
 	}
 	return O
 }
 
 func EyeSparse(size uint) *SparseMatrix {
 	E := ZerosSparse(size, size)
-	var i uint = 0
-	for ; i < size; i++ {
-		E.Set(i, i, 1)
+	var i uint
+	for i = 0; i < size; i++ {
+		E.Set(i, i, 1.0)
 	}
 	return E
 }
