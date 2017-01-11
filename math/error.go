@@ -7,6 +7,8 @@ import (
 const (
 	// The matrix returned was nil
 	errorNilMatrix = iota
+	// The element of indexed does not exist in (sparse) matrix
+	errorNilElement
 	// The dimensions of the inputs do not make sense
 	errorDimensionMismatch
 	// The indices provided are out of bounds
@@ -23,6 +25,8 @@ func (e error_) Error() string {
 	switch e {
 	case errorNilMatrix:
 		return "Matrix is nil"
+	case errorNilElement:
+		return "Element indexed does not exist"
 	case errorDimensionMismatch:
 		return "Input dimensions do not match"
 	case errorIllegalIndex:
@@ -42,6 +46,8 @@ func (e error_) String() string {
 var (
 	//The matrix returned was nil.
 	ErrorNilMatrix error_ = error_(errorNilMatrix)
+	//The element identified in the matrix was nil (does not exist)
+	ErrorNilElement error_ = error_(errorNilElement)
 	//The dimensions of the inputs do not make sense for this operation.
 	ErrorDimensionMismatch error_ = error_(errorDimensionMismatch)
 	//The indices provided are out of bounds.

@@ -1,6 +1,7 @@
 package math
 
 import (
+	"fmt"
 	"math/rand"
 )
 
@@ -28,84 +29,120 @@ func MakeSparseMatrix(elements map[uint]float64, rows, cols uint) *SparseMatrix 
 	return M
 }
 
-// TODO: to implements
 func (M *SparseMatrix) Arrays() [][]float64 {
-	return nil
-}
-
-// TODO: to implements
-func (M *SparseMatrix) Array() []float64 {
-	return nil
-}
-
-func (M *SparseMatrix) GetRowColIndex(index uint) (i, j uint) {
-	i = (index - M.offset) / M.step
-	j = (index - M.offset) % M.step
-	return
-}
-
-func (M *SparseMatrix) GetRowIndex(index uint) (i uint) {
-	i = (index - M.offset) / M.step
-	return
-}
-
-func (M *SparseMatrix) GetColIndex(index uint) (j uint) {
-	j = (index - M.offset) % M.step
-	return
-}
-
-func (M *SparseMatrix) Get(i, j uint) float64 {
-	i = i % M.rows
-	if i < 0 {
-		i = M.rows + i
+	a := make([][]float64, M.rows)
+	var i, j uint
+	for i = 0; i < M.rows; i++ {
+		a[i] = make([]float64, M.cols)
 	}
+	for index, value := range M.elements {
+		i, j, err := M.GetRowColIndex(index)
+		if err != nil {
+			a[i][j] = value
+		}
+	}
+	return a
+}
 
-	j = j % M.cols
-	if j < 0 {
-		j = M.cols + j
+func (M *SparseMatrix) Array() []float64 {
+	a := make([]float64, M.rows*M.cols)
+	for index, value := range M.elements {
+		a[index] = value
+	}
+	return a
+}
+
+func (M *SparseMatrix) GetRowColIndex(index uint) (i, j uint, err error) {
+	if index < 0 || i > M.rows * M.cols-1 {
+		err := ErrorIllegalIndex
+	}
+	i = (index - M.offset) / M.step
+	j = (index - M.offset) % M.step
+	return
+}
+
+func (M *SparseMatrix) GetRowIndex(index uint) (i uint, err error) {
+	if index < 0 || i > M.rows * M.cols-1 {
+		err := ErrorIllegalIndex
+	}
+	i = (index - M.offset) / M.step
+	return
+}
+
+func (M *SparseMatrix) GetColIndex(index uint) (j uint, err error) {
+	if index < 0 || i > M.rows * M.cols-1 {
+		err := ErrorIllegalIndex
+	}
+	j = (index - M.offset) % M.step
+	return
+}
+
+func (M *SparseMatrix) Get(i, j uint) (float64, error) {
+	//The following codes are not safe.
+	//i = i % M.rows
+	//if i < 0 {
+	//	i = M.rows + i
+	//}
+	//
+	//j = j % M.cols
+	//if j < 0 {
+	//	j = M.cols + j
+	//}
+
+	if i < 0 || i >= M.rows || j < 0 || j >= M.cols {
+		return nil, ErrorIllegalIndex
 	}
 
 	v, ok := M.elements[i*M.step+j+M.offset]
 	if !ok {
-		return nil
+		return (nil, ErrorNilElement)
 	}
-	return v
+	return (v, nil)
 }
 
 // Looks up an element given its element index
-func (M *SparseMatrix) GetValue(index uint) float64 {
+func (M *SparseMatrix) GetValue(index uint) (float64, error) {
 	v, ok := M.elements[index]
 	if !ok {
-		return nil
+		return (nil, ErrorNilElement)
 	}
-	return v
+	return (v, nil)
 }
 
-func (M *SparseMatrix) Set(i, j uint, v float64) {
-	i = i % M.rows
-	if i < 0 {
-		i = M.rows + i
+func (M *SparseMatrix) Set(i, j uint, v float64) (err error){
+	//The following codes are not safe.
+	//i = i % M.rows
+	//if i < 0 {
+	//	i = M.rows + i
+	//}
+	//
+	//j = j % M.cols
+	//if j < 0 {
+	//	j = M.cols + j
+	//}
+	
+	if i < 0 || i >= M.rows || j < 0 || j >= M.cols {
+		err := ErrorIllegalIndex
 	}
 
-	j = j % M.cols
-	if j < 0 {
-		j = M.cols + j
-	}
 	index = i*M.step + j + M.offset
 	if v == nil {
 		delete(M.elements, index)
 	} else {
 		M.elements[index] = v
 	}
-
+	return
 }
 
-func (M *SparseMatrix) SetValue(index uint, v float64) {
+func (M *SparseMatrix) SetValue(index uint, v float64) (err error){
 	if v == nil {
 		delete(M.elements, index)
-	} else {
+	} else if index < M.rows * M.cols {
 		M.elements[index] = v
+	} else {
+		err := ErrorIllegalIndex
 	}
+	return
 }
 
 func (M *SparseMatrix) Indices() (out chan uint) {
@@ -123,22 +160,27 @@ func (M *SparseMatrix) Indices() (out chan uint) {
 	return
 }
 
-func (M *SparseMatrix) SubMatrix(i, j, rows, cols uint) *SparseMatrix {
+func (M *SparseMatrix) SubMatrix(i, j, rows, cols uint) (m *SparseMatrix, err error) {
 	if i < 0 || j < 0 || i+rows > M.rows || j+cols > M.cols {
-		i = maxUInt(0, i)
-		j = maxUInt(0, j)
-		rows = minUInt(M.rows-i, rows)
-		cols = minUInt(M.cols-j, cols)
+		//i = maxUInt(0, i)
+		//j = maxUInt(0, j)
+		//rows = minUInt(M.rows-i, rows)
+		//cols = minUInt(M.cols-j, cols)
+		return (nil, ErrorIllegalIndex)
 	}
-	S := ZerosSparse(rows, cols)
+	
+	m := ZerosSparse(rows, cols)
 
 	for index, value := range M.elements {
 		r, c := M.GetRowColIndex(index)
 		if r < i+rows && c < j+cols {
-			S.Set(r-i, c-j, value)
+			err := m.Set(r-i, c-j, value)
+			if err != nil {
+				return (nil, err)
+			}
 		}
 	}
-	return S
+	return
 }
 
 func (M *SparseMatrix) ColVector(j uint) *SparseMatrix {
