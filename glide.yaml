@@ -4,6 +4,7 @@ import:
   subpackages:
   - memcache
 - package: github.com/mattn/goveralls
+- package: github.com/pborman/uuid
 - package: golang.org/x/tools
   subpackages:
   - cover
