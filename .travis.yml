@@ -1,7 +1,12 @@
 language: go
+sudo: false
 
 go:
   - 1.7
+
+cache:
+  directories:
+    - vendor
 
 services:
   - memcached
@@ -11,7 +16,12 @@ before_install:
   - go get -v github.com/bradfitz/gomemcache/memcache
 
 install:
-  - make setup-ci
+  - make dependencies
+  #- make setup-ci
 
 script:
-  - make test-race
+  - make lint
+  - make test
+
+after_success:
+  - make coveralls
