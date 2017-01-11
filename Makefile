@@ -17,7 +17,7 @@ all: lint test
 .PHONY: dependencies
 dependencies:
 	@echo "Installing Glide and locked dependencies..."
-	glide --version || go get -u -f github.com/masterminds/glide
+	glide --version || go get -u -f github.com/Masterminds/glide
 	glide install
 	@echo "Installing test dependencies..."
 	go install ./vendor/github.com/axw/gocov/gocov
