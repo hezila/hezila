@@ -1,3 +1,29 @@
+GO_VERSION := $(shell go version | cut -d " " -f 3)
+GO_MINOR_VERSION := $(word 2,$(subst ., ,$(GO_VERSION)))
+LINTABLE_MINOR_VERSION := 7
+ifneq ($(filter $(LINTABLE_MINOR_VERSION), $(GO_MINOR_VERSION)),)
+SHOULD_LINT := true
+endif
+
+.PHONY: all
+all: lint test
+
+.PHONY: dependencies
+dependencies:
+	@echo "Installing Glide and locked dependencies..."
+	glide --version || go get -u -f github.com/masterminds/glide
+	glide install
+	@echo "Installing test dependencies..."
+	go install ./vendor/github.com/axw/gocov/gocov
+	go install ./vendor/github.com/mattn/goveralls
+ifdef SHOULD_LINT
+	@echo "Installing golint..."
+	go install ./vendor/github.com/golang/lint/golint
+else
+	@echo "Not installing golint, since we don't expect to lint on" $(GO_VERSION)
+endif
+
+
 HEZILA_GO_EXECUTABLE ?= go
 DIST_DIRS := find * -type d -exec
 GIT_COMMIT=`git rev-parse --short HEAD`
@@ -74,5 +100,3 @@ version:
 
 clean:
 	rm -f build/bin/*
-
-.PHONY: all clean dev release test

@@ -15,7 +15,12 @@ install:
   - make setup-ci
 
 script:
+  - make lint
+  - make test
   - go get -t -v ./...
   - diff -u <(echo -n) <(gofmt -d -s .)
   - go tool vet .
   - make test-race
+
+after_success:
+  - make coveralls
