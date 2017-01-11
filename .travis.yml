@@ -12,12 +12,8 @@ services:
   - memcached
   - redis
 
-before_install:
-  - go get -v github.com/bradfitz/gomemcache/memcache
-
 install:
   - make dependencies
-  #- make setup-ci
 
 script:
   - make lint
