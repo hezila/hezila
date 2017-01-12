@@ -8,6 +8,7 @@ Hezila always offer intelligence for stupid humans.
 hezila requires Go version 1.7 or greater.
 
 
+
 /!\ FAR FROM BEING PRODUCTION READY /!\
 
 ## Usage ##
@@ -16,6 +17,15 @@ hezila requires Go version 1.7 or greater.
 
 - [SGD](http://leon.bottou.org/projects/sgd)
 - [Temporal graph store abstraction layer](https://github.com/google/badwolf)
+
+
+## Usage ##
+
+## TODO ##
+
+ - [SGD](http://leon.bottou.org/projects/sgd)
+ - [Temporal graph store abstraction layer](https://github.com/google/badwolf)
+
 
 ## References ##
 

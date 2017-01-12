@@ -4,23 +4,20 @@ language: go
 go:
   - 1.7
 
+cache:
+  directories:
+    - vendor
+
 services:
   - memcached
   - redis
 
-before_install:
-  - go get -v github.com/bradfitz/gomemcache/memcache
-
 install:
-  - make setup-ci
+  - make dependencies
 
 script:
   - make lint
   - make test
-  - go get -t -v ./...
-  - diff -u <(echo -n) <(gofmt -d -s .)
-  - go tool vet .
-  - make test-race
 
 after_success:
   - make coveralls
