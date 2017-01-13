@@ -4,6 +4,7 @@ import (
 	"math/rand"
 )
 
+// A sparse matrix with indexing all of its elements by a map
 type SparseMatrix struct {
 	matrix
 

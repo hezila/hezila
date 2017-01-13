@@ -1,7 +1,6 @@
 package math
 
 import (
-	"log"
 	"math/rand"
 )
 
