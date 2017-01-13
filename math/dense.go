@@ -22,8 +22,7 @@ func NewDenseMatrix(rows, cols uint) *DenseMatrix {
 	M.step = cols
 
 	M.elements = make([]float64, rows*cols)
-	var i uint = 0
-	for ; i < rows*cols; i++ {
+	for i := uint(0); i < rows*cols; i++ {
 		M.elements[i] = 0.0
 	}
 	return M
@@ -34,6 +33,7 @@ func MakeDenseMatrix(elements []float64, rows, cols uint) *DenseMatrix {
 	A.rows = rows
 	A.cols = cols
 	A.step = cols
+	
 	A.elements = elements
 	return A
 }
@@ -42,9 +42,9 @@ func MakeDenseMatrixStacked(data [][]float64) *DenseMatrix {
 	rows := uint(len(data))
 	cols := uint(len(data[0]))
 	elements := make([]float64, rows*cols)
-	var i, j uint
-	for i = 0; i < rows; i++ {
-		for j = 0; j < cols; j++ {
+	
+	for i := uint(0); i < rows; i++ {
+		for j := uint(0); j < cols; j++ {
 			elements[i*cols+j] = data[i][j]
 		}
 	}
@@ -53,21 +53,21 @@ func MakeDenseMatrixStacked(data [][]float64) *DenseMatrix {
 
 func (M *DenseMatrix) Arrays() [][]float64 {
 	a := make([][]float64, M.rows)
-	var i uint = 0
-	for ; i < M.rows; i++ {
+
+	for i := uint(0); i < M.rows; i++ {
 		a[i] = M.elements[i*M.step : i*M.step+M.cols]
 	}
 	return a
 }
 
 func (M *DenseMatrix) Array() []float64 {
-	if M.step == M.rows {
+	if M.step == M.cols {
 		return M.elements[0 : M.rows*M.cols]
 	}
+	
 	a := make([]float64, M.rows*M.cols)
-	var i, j uint
-	for i = 0; i < M.rows; i++ {
-		for j = 0; j < M.cols; j++ {
+	for i := uint(0); i < M.rows; i++ {
+		for j := uint(0); j < M.cols; j++ {
 			a[i*M.cols+j] = M.elements[i*M.step+j]
 		}
 	}
@@ -78,20 +78,60 @@ func (M *DenseMatrix) RowSlice(row uint) []float64 {
 	return M.elements[row*M.step : row*M.step+M.cols]
 }
 
-func (M *DenseMatrix) Get(i, j uint) float64 {
-	if i >= M.Rows() || j >= M.Cols() {
-		log.Fatal("index out of bounds")
+func (M *DenseMatrix) ColSlice(col uint) []float64 {
+	a := make([]float64, M.rows)
+	for i := uint(0); i < M.rows; i++ {
+		a[i] = M.elements[i*M.step + col]
 	}
-	return M.elements[i*M.step+j]
+	return a
 }
 
-func (M *DenseMatrix) Set(i, j uint, v float64) {
-	if i >= M.rows || j >= M.Cols() {
-		log.Fatal("index out of bounds")
-		panic(ErrorIllegalIndex)
+func (M *DenseMatrix) Get(i, j uint) (v float64, err error) {
+	if i < 0 {
+		i = M.rows + i
+		if i < 0 {
+			err = ErrorIllegalIndex
+		}
+	}
+
+	if j < 0 {
+		j = M.cols + j
+		if j < 0 {
+			err = ErrorIllegalIndex
+		}
+	}
+	
+	if i >= M.rows || j >= M.cols {
+		err = ErrorIllegalIndex
+	}
+	v = M.elements[i*M.step +j]
+	return
+}
+
+func (M *DenseMatrix) Set(i, j uint, v float64) (err error) {
+	if i < 0 {
+		i = M.rows + i
+		if i < 0 {
+			err = ErrorIllegalIndex
+		}
+	}
+	if j < 0 {
+		j = M.cols + j
+		if j < 0 {
+			err = ErrorIllegalIndex
+		}
+	}
+	if i >= M.rows || j >= M.cols {
+		err = ErrorIllegalIndex
 	}
 	M.elements[i*M.step+j] = v
+	return
 }
+
+func (M *DenseMatrix) SetValue(index uint, v float64) {
+	M.elements[index] = v
+}
+
 
 // Get a submatrix starting at i, j with rows rows and cols columns
 func (M *DenseMatrix) SubMatrix(i, j, rows, cols uint) *DenseMatrix {

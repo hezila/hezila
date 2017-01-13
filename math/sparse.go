@@ -2,6 +2,8 @@ package math
 
 import (
 	"math/rand"
+
+	"hezila/utils"
 )
 
 // A sparse matrix with indexing all of its elements by a map
@@ -16,6 +18,17 @@ type SparseMatrix struct {
 	offset uint
 	// analogous to dense step
 	step uint
+}
+
+func NewSparseMatrix(rows, cols uint) *SparseMatrix {
+	M := new(SparseMatrix)
+	M.rows = rows
+	M.cols = cols
+	M.offset = 0
+	M.step = cols
+	
+	M.elements = make(map[uint]float64)
+	return M
 }
 
 func MakeSparseMatrix(elements map[uint]float64, rows, cols uint) *SparseMatrix {
@@ -55,54 +68,62 @@ func (M *SparseMatrix) GetColIndex(index uint) (j uint) {
 	return
 }
 
-func (M *SparseMatrix) Get(i, j uint) float64 {
-	i = i % M.rows
+func (M *SparseMatrix) Get(i, j uint) (v float64, err error) {
 	if i < 0 {
 		i = M.rows + i
+		if i < 0 {
+			err = ErrorIllegalIndex
+		}
 	}
 
-	j = j % M.cols
 	if j < 0 {
 		j = M.cols + j
+		if j < 0 {
+			err = ErrorIllegalIndex
+		}
 	}
 
-	v, ok := M.elements[i*M.step+j+M.offset]
-	if !ok {
-		return 0
+	if i >= M.rows || j >= M.cols {
+		err = ErrorIllegalIndex
 	}
-	return v
+	
+	v, err = M.elements[i*M.step+j+M.offset]
+	return
 }
 
 // Looks up an element given its element index
-func (M *SparseMatrix) GetValue(index uint) float64 {
-	x, ok := M.elements[index]
-	if !ok {
-		return 0
-	}
-	return x
+func (M *SparseMatrix) GetValue(index uint) (v float64, err error) {
+	v, err = M.elements[index]
+	return
 }
 
-func (M *SparseMatrix) Set(i, j uint, v float64) {
-	i = i % M.rows
+func (M *SparseMatrix) Set(i, j uint, v float64) (err error){
+	//i = i % M.rows
 	if i < 0 {
 		i = M.rows + i
+		if i < 0 {
+			err = ErrorIllegalIndex
+		}
 	}
 
-	j = j % M.cols
+	//j = j % M.cols
 	if j < 0 {
 		j = M.cols + j
+		if j < 0 {
+			err = ErrorIllegalIndex
+		}
 	}
 
-	if v == 0 {
+	if v == nil {
 		delete(M.elements, i*M.step+j+M.offset)
 	} else {
 		M.elements[i*M.step+j+M.offset] = v
 	}
-
+	return
 }
 
 func (M *SparseMatrix) SetValue(index uint, v float64) {
-	if v == 0 {
+	if v == nil {
 		delete(M.elements, index)
 	} else {
 		M.elements[index] = v
