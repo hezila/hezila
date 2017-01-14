@@ -1,6 +1,7 @@
 package math
 
 import (
+	"log"
 	"math/rand"
 
 	"hezila/utils"
@@ -44,11 +45,13 @@ func MakeSparseMatrix(elements map[uint]float64, rows, cols uint) *SparseMatrix 
 
 // TODO: to implements
 func (M *SparseMatrix) Arrays() [][]float64 {
+	log.Fatal("The Arrays() function for sparse matrix has not been implemented!")
 	return nil
 }
 
 // TODO: to implements
 func (M *SparseMatrix) Array() []float64 {
+	log.Fatal("The Array() function for sparse matrix has not been implemented!")
 	return nil
 }
 
@@ -68,7 +71,39 @@ func (M *SparseMatrix) GetColIndex(index uint) (j uint) {
 	return
 }
 
-func (M *SparseMatrix) Get(i, j uint) (v float64, err error) {
+func (M *SparseMatrix) Get(i, j uint) (float64) {
+	if i < 0 {
+		i = M.rows + i
+		if i < 0 {
+			log.Fatal("index out of bound!")
+			//err = ErrorIllegalIndex
+			return nil
+		}
+	}
+
+	if j < 0 {
+		j = M.cols + j
+		if j < 0 {
+			log.Fatal("index out of bound!")
+			//err = ErrorIllegalIndex
+			return nil
+		}
+	}
+
+	if i >= M.rows || j >= M.cols {
+		log.Fatal("index out of bound!")
+		// err = ErrorIllegalIndex
+		return nil
+	}
+	
+	v, err = M.elements[i*M.step+j+M.offset]
+	if err != nil {
+		log.Fatal("the element indexed does not exists!")
+	}
+	return v
+}
+
+func (M *SparseMatrix) Exist(i, j uint) (v float64, err error) {
 	if i < 0 {
 		i = M.rows + i
 		if i < 0 {
@@ -97,12 +132,13 @@ func (M *SparseMatrix) GetValue(index uint) (v float64, err error) {
 	return
 }
 
-func (M *SparseMatrix) Set(i, j uint, v float64) (err error){
+func (M *SparseMatrix) Set(i, j uint, v float64) {
 	//i = i % M.rows
 	if i < 0 {
 		i = M.rows + i
 		if i < 0 {
-			err = ErrorIllegalIndex
+			log.Fatal("index out of bound!")
+			//err = ErrorIllegalIndex
 		}
 	}
 
@@ -110,7 +146,8 @@ func (M *SparseMatrix) Set(i, j uint, v float64) (err error){
 	if j < 0 {
 		j = M.cols + j
 		if j < 0 {
-			err = ErrorIllegalIndex
+			log.Fatal("index out of bound!")
+			//err = ErrorIllegalIndex
 		}
 	}
 
@@ -119,7 +156,6 @@ func (M *SparseMatrix) Set(i, j uint, v float64) (err error){
 	} else {
 		M.elements[i*M.step+j+M.offset] = v
 	}
-	return
 }
 
 func (M *SparseMatrix) SetValue(index uint, v float64) {

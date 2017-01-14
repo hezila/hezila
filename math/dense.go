@@ -1,6 +1,7 @@
 package math
 
 import (
+	"log"
 	"math/rand"
 )
 
@@ -86,46 +87,51 @@ func (M *DenseMatrix) ColSlice(col uint) []float64 {
 	return a
 }
 
-func (M *DenseMatrix) Get(i, j uint) (v float64, err error) {
+func (M *DenseMatrix) Get(i, j uint) (v float64) {
 	if i < 0 {
 		i = M.rows + i
 		if i < 0 {
-			err = ErrorIllegalIndex
+			//err = ErrorIllegalIndex
+			log.Fatal("index out of bound!")
 		}
 	}
 
 	if j < 0 {
 		j = M.cols + j
 		if j < 0 {
-			err = ErrorIllegalIndex
+			//err = ErrorIllegalIndex
+			log.Fatal("index out of bound!")
 		}
 	}
 	
 	if i >= M.rows || j >= M.cols {
-		err = ErrorIllegalIndex
+		//err = ErrorIllegalIndex
+		log.Fatal("index out of bound!")
 	}
 	v = M.elements[i*M.step +j]
 	return
 }
 
-func (M *DenseMatrix) Set(i, j uint, v float64) (err error) {
+func (M *DenseMatrix) Set(i, j uint, v float64) {
 	if i < 0 {
 		i = M.rows + i
 		if i < 0 {
-			err = ErrorIllegalIndex
+			//err = ErrorIllegalIndex
+			log.Fatal("index out of bound!")
 		}
 	}
 	if j < 0 {
 		j = M.cols + j
 		if j < 0 {
-			err = ErrorIllegalIndex
+			//err = ErrorIllegalIndex
+			log.Fatal("index out of bound!")
 		}
 	}
 	if i >= M.rows || j >= M.cols {
-		err = ErrorIllegalIndex
+		//err = ErrorIllegalIndex
+		log.Fatal("index out of bound!")
 	}
 	M.elements[i*M.step+j] = v
-	return
 }
 
 func (M *DenseMatrix) SetValue(index uint, v float64) {
