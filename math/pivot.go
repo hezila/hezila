@@ -20,19 +20,25 @@ func (P *PivotMatrix) Array() []float64 {
 	return nil
 }
 
-func (P *PivotMatrix) Get(i, j uint) float64 {
-	i = i % P.rows
+func (P *PivotMatrix) Get(i, j uint) (v float64, err error) {
 	if i < 0 {
-		i = P.rows - i
+		i = P.rows + i
+		if i < 0 {
+			err = ErrorIllegalIndex
+		}
 	}
-	j = j % P.cols
+
 	if j < 0 {
-		j = P.cols - j
+		j = P.cols + j
+		if j < 0 {
+			err = ErrorIllegalIndex
+		}
 	}
+	
 	if P.pivots[j] == i {
-		return 1
+		v = 1
 	}
-	return 0
+	return
 }
 
 /*
@@ -40,8 +46,7 @@ Convert this PivotMatrix into a DenseMatrix.
 */
 func (P *PivotMatrix) DenseMatrix() *DenseMatrix {
 	A := Zeros(P.rows, P.cols)
-	var j uint
-	for j = 0; j < P.rows; j++ {
+	for j := uint(0); j < P.rows; j++ {
 		A.Set(P.pivots[j], j, 1)
 	}
 	return A
@@ -52,8 +57,8 @@ Convert this PivotMatrix into a SparseMatrix.
 */
 func (P *PivotMatrix) SparseMatrix() *SparseMatrix {
 	A := ZerosSparse(P.rows, P.cols)
-	var j uint
-	for j = 0; j < P.rows; j++ {
+
+	for j := uint(0); j < P.rows; j++ {
 		A.Set(P.pivots[j], j, 1)
 	}
 	return A
