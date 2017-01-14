@@ -145,23 +145,23 @@ func (M *SparseMatrix) Indices() (out chan uint) {
 	return
 }
 
-func (M *SparseMatrix) SubMatrix(i, j, rows, cols uint) *SparseMatrix {
-	if i < 0 || j < 0 || i+rows > M.rows || j+cols > M.cols {
-		i = maxUInt(0, i)
-		j = maxUInt(0, j)
-		rows = minUInt(M.rows-i, rows)
-		cols = minUInt(M.cols-j, cols)
+func (M *SparseMatrix) SubMatrix(i, j, rows, cols uint) (*SparseMatrix, err error) {
+	if i < 0 || j < 0 || rows <= 0 || cols <= 0 ||
+		(i+rows) > M.rows || (j+cols) > M.cols {
+		err = ErrorIllegalIndex
 	}
-	S := ZerosSparse(rows, cols)
 
-	for index, value := range M.elements {
-		r, c := M.GetRowColIndex(index)
-		if r < i+rows && c < j+cols {
-			S.Set(r-i, c-j, value)
+	S := ZerosSparse(rows, cols)
+	for r := uint(0); r < rows; r++ {
+		for c := uint(0); c < cols; c++ {
+			index = (i+r)*M.step + (j+c) + M.offset
+			if val, ok := M.elements[index]; ok {
+				S.Set(r, c, val)
+			}
 		}
 	}
 
-	return S
+	return (S, err)
 }
 
 func (M *SparseMatrix) ColVector(j uint) *SparseMatrix {
@@ -173,44 +173,46 @@ func (M *SparseMatrix) RowVector(i uint) *SparseMatrix {
 }
 
 // Create a new matrix [A B]
-func (A *SparseMatrix) Augment(B *SparseMatrix) (*SparseMatrix, error) {
+func (A *SparseMatrix) Augment(B *SparseMatrix) (S *SparseMatrix, err error) {
 	if A.rows != B.rows {
-		return nil, ErrorDimensionMismatch
+		err = ErrorDimensionMismatch
+		return
 	}
 
-	C := ZerosSparse(A.rows, A.cols+B.cols)
+	S = ZerosSparse(A.rows, A.cols+B.cols)
 
 	for index, value := range A.elements {
 		i, j := A.GetRowColIndex(index)
-		C.Set(i, j, value)
+		S.Set(i, j, value)
 	}
 
 	for index, value := range B.elements {
 		i, j := B.GetRowColIndex(index)
-		C.Set(i, j+A.cols, value)
+		S.Set(i, j+A.cols, value)
 	}
 
-	return C, nil
+	return
 }
 
-func (A *SparseMatrix) Stack(B *SparseMatrix) (*SparseMatrix, error) {
+func (A *SparseMatrix) Stack(B *SparseMatrix) (S *SparseMatrix, err error) {
 	if A.cols != B.cols {
-		return nil, ErrorDimensionMismatch
+		err = ErrorDimensionMismatch
+		return
 	}
 
-	C := ZerosSparse(A.rows+B.rows, A.cols)
+	S = ZerosSparse(A.rows+B.rows, A.cols)
 
 	for index, value := range A.elements {
 		i, j := A.GetRowColIndex(index)
-		C.Set(i, j, value)
+		S.Set(i, j, value)
 	}
 
 	for index, value := range B.elements {
 		i, j := B.GetRowColIndex(index)
-		C.Set(i, j, value)
+		S.Set(i+A.rows, j, value)
 	}
 
-	return C, nil
+	return
 }
 
 func (M *SparseMatrix) L() *SparseMatrix {
@@ -243,8 +245,6 @@ func (M *SparseMatrix) Copy() *SparseMatrix {
 	return C
 }
 
-//func (M *SparseMatrix) String() string { return String(M) }
-
 func ZerosSparse(rows, cols uint) *SparseMatrix {
 	M := new(SparseMatrix)
 	M.rows = rows
@@ -261,8 +261,8 @@ func OnesSparse(rows, cols uint) *SparseMatrix {
 	O.cols = cols
 	O.step = cols
 	O.elements = map[uint]float64{}
-	var i uint = 0
-	for ; i < cols*cols; i++ {
+
+	for i := uint(0); i < cols*cols; i++ {
 		O.elements[i] = 1
 	}
 	return O
@@ -270,8 +270,8 @@ func OnesSparse(rows, cols uint) *SparseMatrix {
 
 func EyeSparse(size uint) *SparseMatrix {
 	E := ZerosSparse(size, size)
-	var i uint = 0
-	for ; i < size; i++ {
+
+	for i := uint(0); i < size; i++ {
 		E.Set(i, i, 1)
 	}
 	return E
@@ -279,23 +279,23 @@ func EyeSparse(size uint) *SparseMatrix {
 
 func NormalsSparse(rows, cols uint) *SparseMatrix {
 	N := ZerosSparse(rows, cols)
-	var i, j uint
-	for i = 0; i < rows; i++ {
-		for j = 0; j < cols; j++ {
+
+	for i := uint(0); i < rows; i++ {
+		for j := uint(0); j < cols; j++ {
 			N.Set(i, j, rand.NormFloat64())
 		}
 	}
 	return N
 }
 
-//func Diagonal(d []float64) *SparseMatrix {
-//	n := len(d)
-//	D := ZerosSparse(n, n)
-//	for i := 0; i < n; i++ {
-//		D.Set(i, i, d[i])
-//	}
-//	return D
-//}
+func Diagonal(d []float64) *SparseMatrix {
+	n := uint(len(d))
+	D := ZerosSparse(n, n)
+	for i := uint(0); i < n; i++ {
+		D.Set(i, i, d[i])
+	}
+	return D
+}
 
 /*
 Convert this sparse matrix into a dense matrix.
@@ -313,15 +313,15 @@ func (A *SparseMatrix) SparseMatrix() *SparseMatrix {
 	return A.Copy()
 }
 
-func (A *SparseMatrix) String() string { return String(A) }
-
-func MakeSparseCopy(M Matrix) *SparseMatrix {
+func MakeSparseCopy(M MatrixRO) *SparseMatrix {
 	A := ZerosSparse(M.Rows(), M.Cols())
-	var i, j uint
-	for i = 0; i < M.Rows(); i++ {
-		for j = 0; j < M.Cols(); j++ {
+
+	for i := uint(0); i < M.Rows(); i++ {
+		for j := uint(0); j < M.Cols(); j++ {
 			A.Set(i, j, M.Get(i, j))
 		}
 	}
 	return A
 }
+
+func (A *SparseMatrix) String() string { return String(A) }

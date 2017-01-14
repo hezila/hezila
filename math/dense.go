@@ -134,30 +134,27 @@ func (M *DenseMatrix) SetValue(index uint, v float64) {
 
 
 // Get a submatrix starting at i, j with rows rows and cols columns
-func (M *DenseMatrix) SubMatrix(i, j, rows, cols uint) *DenseMatrix {
-	if (i+rows) > M.rows || (j+cols) > M.cols {
-		//fmt.Printf("R: %d\t%d\n", i+rows, M.rows)
-		//fmt.Printf("C: %d\t%d\n", j+cols, M.cols)
-		log.Fatal("index out of bounds")
+func (M *DenseMatrix) SubMatrix(i, j, rows, cols uint) (*DenseMatrix, err error) {
+	if i < 0 || j < 0 || rows <= 0 || cols <= 0 ||
+		(i+rows) > M.rows || (j+cols) > M.cols {
+		err = ErrorIllegalIndex
 	}
+
 	A := new(DenseMatrix)
 	A.elements = make([]float64, rows*cols)
 	A.step = cols
 	A.rows = rows
 	A.cols = cols
-	var r, c uint
-	for r = 0; r < rows; r++ {
-		for c = 0; c < cols; c++ {
+	for r := uint(0); r < rows; r++ {
+		for c := uint(0); c < cols; c++ {
 			A.elements[r*A.step+c] = M.elements[(i+r)*M.step+j+c]
 		}
 	}
-	return A
+	return (A, err)
 }
 
-/*
-Get a submatrix starting at i,j with rows rows and cols columns. Changes to
-the returned matrix show up in the original.
-*/
+// Get a submatrix starting at i,j with rows rows and cols columns. Changes to
+// the returned matrix show up in the original.
 func (A *DenseMatrix) GetMatrix(i, j, rows, cols uint) *DenseMatrix {
 	B := new(DenseMatrix)
 	B.elements = A.elements[i*A.step+j : i*A.step+j+(rows-1)*A.step+cols]
@@ -167,22 +164,22 @@ func (A *DenseMatrix) GetMatrix(i, j, rows, cols uint) *DenseMatrix {
 	return B
 }
 
-// Copy A into M, with A's 0, 0 aligning with A's i, j
+// Copy A into M, with A's 0, 0 aligning with M's i, j
 func (M *DenseMatrix) SetMatrix(i, j uint, A *DenseMatrix) {
 	var r, c uint
-	for r = 0; r < A.rows; r++ {
-		for c = 0; c < A.cols; c++ {
+	for r := uint(0); r < A.rows; r++ {
+		for c := uint(0); c < A.cols; c++ {
 			M.Set(i+r, j+c, A.Get(r, c))
 		}
 	}
 }
 
 func (M *DenseMatrix) ColVector(j uint) *DenseMatrix {
-	return M.SubMatrix(0, j, M.Rows(), 1)
+	return M.SubMatrix(0, j, M.rows, 1)
 }
 
 func (M *DenseMatrix) RowVector(i uint) *DenseMatrix {
-	return M.SubMatrix(i, 0, 1, M.Cols())
+	return M.SubMatrix(i, 0, 1, M.cols
 }
 
 func (M *DenseMatrix) Copy() *DenseMatrix {
@@ -191,14 +188,14 @@ func (M *DenseMatrix) Copy() *DenseMatrix {
 	A.cols = M.cols
 	A.step = M.step
 	A.elements = make([]float64, M.rows*M.cols)
-	var r uint = 0
-	for ; r < A.rows; r++ {
+
+	for r := uint(0); r < A.rows; r++ {
 		copy(A.RowSlice(r), M.RowSlice(r))
 	}
 	return A
 }
 
-// Get a new matrix [M, A]
+// Get a new matrix [M, A], with A after M
 func (M *DenseMatrix) Augment(A *DenseMatrix) (B *DenseMatrix, err error) {
 	if M.rows != A.rows {
 		err = ErrorDimensionMismatch
@@ -241,14 +238,11 @@ func (M *DenseMatrix) AugmentFill(A, B *DenseMatrix) (err error) {
 	return
 }
 
-/*
-Create a sparse matrix copy.
-*/
+// Create a sparse matrix copy.
 func (A *DenseMatrix) SparseMatrix() *SparseMatrix {
 	B := ZerosSparse(A.rows, A.cols)
-	var i, j uint
-	for i = 0; i < A.rows; i++ {
-		for j = 0; j < A.cols; j++ {
+	for i := uint(0); i < A.rows; i++ {
+		for j = uint(0); j < A.cols; j++ {
 			v := A.Get(i, j)
 			if v != 0 {
 				B.Set(i, j, v)
@@ -261,8 +255,6 @@ func (A *DenseMatrix) SparseMatrix() *SparseMatrix {
 func (A *DenseMatrix) DenseMatrix() *DenseMatrix {
 	return A.Copy()
 }
-
-// func (M *DenseMatrix) String() string { return String(M) }
 
 func Zeros(rows, cols uint) *DenseMatrix {
 	Z := new(DenseMatrix)
@@ -279,7 +271,7 @@ func Ones(rows, cols uint) *DenseMatrix {
 	O.rows = rows
 	O.cols = cols
 	O.step = cols
-	for i := 0; i < len(O.elements); i++ {
+	for i := uint(0); i < rows*cols; i++ {
 		O.elements[i] = 1
 	}
 	return O
@@ -287,8 +279,8 @@ func Ones(rows, cols uint) *DenseMatrix {
 
 func Eye(size uint) *DenseMatrix {
 	E := Zeros(size, size)
-	var i uint = 0
-	for ; i < size; i++ {
+
+	for i := uint(0); i < size; i++ {
 		E.Set(i, i, 1)
 	}
 	return E
@@ -296,9 +288,9 @@ func Eye(size uint) *DenseMatrix {
 
 func Normals(rows, cols uint) *DenseMatrix {
 	N := Zeros(rows, cols)
-	var i, j uint
-	for i = 0; i < N.Rows(); i++ {
-		for j = 0; j < N.Cols(); j++ {
+
+	for i := uint(0); i < N.Rows(); i++ {
+		for j := uint(0); j < N.Cols(); j++ {
 			N.Set(i, j, rand.NormFloat64())
 		}
 	}
@@ -308,8 +300,8 @@ func Normals(rows, cols uint) *DenseMatrix {
 func Diagonal(d []float64) *DenseMatrix {
 	n := uint(len(d))
 	D := Zeros(n, n)
-	var i uint = 0
-	for i = 0; i < n; i++ {
+
+	for i := uint(0); i < n; i++ {
 		D.Set(i, i, d[i])
 	}
 	return D
@@ -317,9 +309,9 @@ func Diagonal(d []float64) *DenseMatrix {
 
 func MakeDenseCopy(A MatrixRO) *DenseMatrix {
 	B := Zeros(A.Rows(), A.Cols())
-	var i, j uint
-	for i = 0; i < B.rows; i++ {
-		for j = 0; j < B.cols; j++ {
+
+	for i := uint(0); i < B.rows; i++ {
+		for j := uint(0); j < B.cols; j++ {
 			B.Set(i, j, A.Get(i, j))
 		}
 	}
