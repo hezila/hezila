@@ -1,8 +1,9 @@
 package math
 
 import (
-	"log"
 	"math/rand"
+
+	log "github.com/golang/glog"
 )
 
 // A matrix backed by a flat array of all elements

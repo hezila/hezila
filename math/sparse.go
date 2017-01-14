@@ -1,10 +1,11 @@
 package math
 
 import (
-	"log"
 	"math/rand"
 
 	"hezila/utils"
+
+	log "github.com/golang/glog" 
 )
 
 // A sparse matrix with indexing all of its elements by a map
@@ -45,13 +46,13 @@ func MakeSparseMatrix(elements map[uint]float64, rows, cols uint) *SparseMatrix 
 
 // TODO: to implements
 func (M *SparseMatrix) Arrays() [][]float64 {
-	log.Fatal("The Arrays() function for sparse matrix has not been implemented!")
+	log.Warning("The Arrays() function for sparse matrix has not been implemented!")
 	return nil
 }
 
 // TODO: to implements
 func (M *SparseMatrix) Array() []float64 {
-	log.Fatal("The Array() function for sparse matrix has not been implemented!")
+	log.Warning("The Array() function for sparse matrix has not been implemented!")
 	return nil
 }
 
@@ -77,7 +78,6 @@ func (M *SparseMatrix) Get(i, j uint) (float64) {
 		if i < 0 {
 			log.Fatal("index out of bound!")
 			//err = ErrorIllegalIndex
-			return nil
 		}
 	}
 
@@ -86,19 +86,17 @@ func (M *SparseMatrix) Get(i, j uint) (float64) {
 		if j < 0 {
 			log.Fatal("index out of bound!")
 			//err = ErrorIllegalIndex
-			return nil
 		}
 	}
 
 	if i >= M.rows || j >= M.cols {
 		log.Fatal("index out of bound!")
 		// err = ErrorIllegalIndex
-		return nil
 	}
 	
 	v, err = M.elements[i*M.step+j+M.offset]
 	if err != nil {
-		log.Fatal("the element indexed does not exists!")
+		log.Warning("the element indexed does not exists!")
 	}
 	return v
 }
