@@ -9,9 +9,8 @@ func (A *DenseMatrix) Symmetric() bool {
 	if A.rows != A.cols {
 		return false
 	}
-	var i, j uint
-	for i = 0; i < A.rows; i++ {
-		for j = 0; j < i; j++ {
+	for i := uint(0); i < A.rows; i++ {
+		for j := uint(0); j < i; j++ {
 			if A.Get(i, j) != A.Get(j, i) {
 				return false
 			}
@@ -20,46 +19,48 @@ func (A *DenseMatrix) Symmetric() bool {
 	return true
 }
 
-func (m *DenseMatrix) SwapRows(r1, r2 uint) {
-	index1 := r1 * m.step
-	index2 := r2 * m.step
-	var j uint
-	for j = 0; j < m.cols; j++ {
-		m.elements[index1], m.elements[index2] = m.elements[index2], m.elements[index1]
+func (M *DenseMatrix) SwapRows(r1, r2 uint) {
+	index1 := r1 * M.step
+	index2 := r2 * M.step
+
+	for j := uint(0); j < M.cols; j++ {
+		temp := M.elements[index1]
+		M.elements[index1] = M.elements[index2]
+		M.elements[index2] = temp
 		index1++
 		index2++
 	}
 }
 
-func (m *DenseMatrix) ScaleRow(r uint, f float64) {
-	index := r * m.step
-	var j uint
-	for j = 0; j < m.cols; j++ {
-		m.elements[index] *= f
+func (M *DenseMatrix) ScaleRow(r uint, f float64) {
+	index := r * M.step
+
+	for j := uint(0); j < M.cols; j++ {
+		M.elements[index] *= f
 		index++
 	}
 }
 
-func (m *DenseMatrix) ScaleAddRow(rd, rs uint, f float64) {
-	indexd := rd * m.step
-	indexs := rs * m.step
-	var j uint
-	for j = 0; j < m.cols; j++ {
-		m.elements[indexd] += f * m.elements[indexs]
+func (M *DenseMatrix) ScaleAddRow(rd, rs uint, f float64) {
+	indexd := rd * M.step
+	indexs := rs * M.step
+
+	for j := uint(0); j < M.cols; j++ {
+		M.elements[indexd] += f * M.elements[indexs]
 		indexd++
 		indexs++
 	}
 }
 
 func (A *DenseMatrix) Inverse() (*DenseMatrix, error) {
-	if A.Rows() != A.Cols() {
+	if A.rows != A.cols {
 		return nil, ErrorDimensionMismatch
 	}
-	aug, _ := A.Augment(Eye(A.Rows()))
-	var i uint
-	for i = 0; i < aug.Rows(); i++ {
+	aug, _ := A.Augment(Eye(A.rows))
+
+	for i := uint(0); i < aug.rows; i++ {
 		j := i
-		for k := i; k < aug.Rows(); k++ {
+		for k := i; k < aug.rows; k++ {
 			if math.Abs(aug.Get(k, i)) > math.Abs(aug.Get(j, i)) {
 				j = k
 			}
@@ -67,19 +68,19 @@ func (A *DenseMatrix) Inverse() (*DenseMatrix, error) {
 		if j != i {
 			aug.SwapRows(i, j)
 		}
-		if aug.Get(i, i) == 0 {
+		if  aug.Get(i, i) == 0 {
 			return nil, ExceptionSingular
 		}
 		aug.ScaleRow(i, 1.0/aug.Get(i, i))
-		var k uint = 0
-		for ; k < aug.Rows(); k++ {
+
+		for k := uint(0); k < aug.rows; k++ {
 			if k == i {
 				continue
 			}
 			aug.ScaleAddRow(k, i, -aug.Get(k, i))
 		}
 	}
-	inv := aug.GetMatrix(0, A.Cols(), A.Rows(), A.Cols())
+	inv := aug.GetMatrix(0, A.cols, A.rows, A.cols)
 	return inv, nil
 }
 

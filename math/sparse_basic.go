@@ -36,19 +36,29 @@ func (A *SparseMatrix) ScaleRow(r uint, f float64) {
 Add a multiple of row rs to row rd.
 */
 func (A *SparseMatrix) ScaleAddRow(rd, rs uint, f float64) {
-	for index, value := range A.elements {
-		i, j := A.GetRowColIndex(index)
-		if i == rs {
-			A.Set(rd, j, A.Get(rd, j)+value*f)
+//	for index, value := range A.elements {
+//		i, j := A.GetRowColIndex(index)
+//		if i == rs {
+//			A.Set(rd, j, A.Get(rd, j)+value*f)
+//		}
+//	}
+
+	for j := uint(0); j < A.cols; j++ {
+		if val, ok := A.Get(rs, j); ok {
+			if old, okd := A.Get(rdd, j); okd {
+				val += old
+			}
+			A.Set(rd, j, val)
 		}
 	}
 }
 
 func (A *SparseMatrix) Symmetric() bool {
 	for index, value := range A.elements {
-		i, j := A.GetRowColIndex(index)
-		if i != j && value != A.Get(j, i) {
-			return false
+		if i, j := A.GetRowColIndex(index); i != j {
+			if val, ok := A.Get(j, i); ok != nil || value != val {
+				return false
+			}
 		}
 	}
 	return true
