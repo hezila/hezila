@@ -1,6 +1,7 @@
 package math
 
 import (
+	"fmt"
 	"math/rand"
 
 	"hezila/utils"
@@ -44,33 +45,54 @@ func MakeSparseMatrix(elements map[uint]float64, rows, cols uint) *SparseMatrix 
 	return M
 }
 
-// TODO: to implements
 func (M *SparseMatrix) Arrays() [][]float64 {
-	log.Warning("The Arrays() function for sparse matrix has not been implemented!")
-	return nil
+	a := make([][]float64, M.rows)
+	var i, j uint
+	for i = 0; i < M.rows; i++ {
+		a[i] = make([]float64, M.cols)
+	}
+	for index, value := range M.elements {
+		i, j, err := M.GetRowColIndex(index)
+		if err != nil {
+			a[i][j] = value
+		}
+	}
+	return a
 }
 
-// TODO: to implements
 func (M *SparseMatrix) Array() []float64 {
-	log.Warning("The Array() function for sparse matrix has not been implemented!")
-	return nil
+	a := make([]float64, M.rows*M.cols)
+	for index, value := range M.elements {
+		a[index] = value
+	}
+	return a
 }
 
-func (M *SparseMatrix) GetRowColIndex(index uint) (i, j uint) {
+func (M *SparseMatrix) GetRowColIndex(index uint) (i, j uint, err error) {
+	if index < 0 || i > M.rows * M.cols-1 {
+		err := ErrorIllegalIndex
+	}
 	i = (index - M.offset) / M.step
 	j = (index - M.offset) % M.step
 	return
 }
 
-func (M *SparseMatrix) GetRowIndex(index uint) (i uint) {
+func (M *SparseMatrix) GetRowIndex(index uint) (i uint, err error) {
+	if index < 0 || i > M.rows * M.cols-1 {
+		err := ErrorIllegalIndex
+	}
 	i = (index - M.offset) / M.step
 	return
 }
 
-func (M *SparseMatrix) GetColIndex(index uint) (j uint) {
+func (M *SparseMatrix) GetColIndex(index uint) (j uint, err error) {
+	if index < 0 || i > M.rows * M.cols-1 {
+		err := ErrorIllegalIndex
+	}
 	j = (index - M.offset) % M.step
 	return
 }
+
 
 func (M *SparseMatrix) Get(i, j uint) (float64) {
 	if i < 0 {
@@ -97,6 +119,7 @@ func (M *SparseMatrix) Get(i, j uint) (float64) {
 	}
 	return v
 }
+
 
 func (M *SparseMatrix) Exist(i, j uint) (v float64, err error) {
 	if i < 0 {
@@ -142,21 +165,25 @@ func (M *SparseMatrix) Set(i, j uint, v float64) {
 		if j < 0 {
 			log.Fatal("index out of bound!")
 		}
-	}
 
-	if v == 0 {
-		delete(M.elements, i*M.step+j+M.offset)
-	} else {
-		M.elements[i*M.step+j+M.offset] = v
-	}
-}
 
-func (M *SparseMatrix) SetValue(index uint, v float64) {
+	index = i*M.step + j + M.offset
 	if v == 0 {
 		delete(M.elements, index)
 	} else {
 		M.elements[index] = v
 	}
+}
+
+func (M *SparseMatrix) SetValue(index uint, v float64) (err error){
+	if v == 0 {
+		delete(M.elements, index)
+	} else if index < M.rows * M.cols {
+		M.elements[index] = v
+	} else {
+		err := ErrorIllegalIndex
+	}
+	return
 }
 
 func (M *SparseMatrix) Indices() (out chan uint) {
@@ -165,7 +192,7 @@ func (M *SparseMatrix) Indices() (out chan uint) {
 	go func(o chan uint) {
 		for index := range M.elements {
 			i, j := M.GetRowColIndex(index)
-			if 0 <= i && i < M.rows && 0 <= j && j < M.cols {
+			if i >= 0 && i < M.rows && j >= 0 && j < M.cols {
 				o <- index
 			}
 		}
@@ -173,6 +200,7 @@ func (M *SparseMatrix) Indices() (out chan uint) {
 	}(out)
 	return
 }
+
 
 func (M *SparseMatrix) SubMatrix(i, j, rows, cols uint) (*SparseMatrix, err error) {
 	if i < 0 || j < 0 || rows <= 0 || cols <= 0 ||
@@ -189,7 +217,6 @@ func (M *SparseMatrix) SubMatrix(i, j, rows, cols uint) (*SparseMatrix, err erro
 			}
 		}
 	}
-
 	return (S, err)
 }
 
@@ -281,6 +308,10 @@ func ZerosSparse(rows, cols uint) *SparseMatrix {
 	M.offset = 0
 	M.step = cols
 	M.elements = map[uint]float64{}
+	var i uint
+	for i = 0; i < rows*cols; i++ {
+		M.elements[i] = 0
+	}
 	return M
 }
 
@@ -290,7 +321,6 @@ func OnesSparse(rows, cols uint) *SparseMatrix {
 	O.cols = cols
 	O.step = cols
 	O.elements = map[uint]float64{}
-
 	for i := uint(0); i < cols*cols; i++ {
 		O.elements[i] = 1
 	}

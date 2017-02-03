@@ -16,11 +16,13 @@ type PivotMatrix struct {
 
 // TODO: to implements
 func (P *PivotMatrix) Arrays() [][]float64 {
+	log.Warning("The Arrays() function for pivot matrix has not been implemented!")
 	return nil
 }
 
 // TODO: to implements
 func (P *PivotMatrix) Array() []float64 {
+	log.Warning("The Array() function for pivot matrix has not been implemented!")
 	return nil
 }
 
