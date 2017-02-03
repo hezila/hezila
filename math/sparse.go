@@ -77,7 +77,6 @@ func (M *SparseMatrix) Get(i, j uint) (float64) {
 		i = M.rows + i
 		if i < 0 {
 			log.Fatal("index out of bound!")
-			//err = ErrorIllegalIndex
 		}
 	}
 
@@ -85,13 +84,11 @@ func (M *SparseMatrix) Get(i, j uint) (float64) {
 		j = M.cols + j
 		if j < 0 {
 			log.Fatal("index out of bound!")
-			//err = ErrorIllegalIndex
 		}
 	}
 
 	if i >= M.rows || j >= M.cols {
 		log.Fatal("index out of bound!")
-		// err = ErrorIllegalIndex
 	}
 	
 	v, err = M.elements[i*M.step+j+M.offset]
@@ -105,19 +102,19 @@ func (M *SparseMatrix) Exist(i, j uint) (v float64, err error) {
 	if i < 0 {
 		i = M.rows + i
 		if i < 0 {
-			err = ErrorIllegalIndex
+			err = log.Fatal("index out of bound!")
 		}
 	}
 
 	if j < 0 {
 		j = M.cols + j
 		if j < 0 {
-			err = ErrorIllegalIndex
+			err = log.Fatal("index out of bound!")
 		}
 	}
 
 	if i >= M.rows || j >= M.cols {
-		err = ErrorIllegalIndex
+		err = log.Fatal("index out of bound!")
 	}
 	
 	v, err = M.elements[i*M.step+j+M.offset]
@@ -136,7 +133,6 @@ func (M *SparseMatrix) Set(i, j uint, v float64) {
 		i = M.rows + i
 		if i < 0 {
 			log.Fatal("index out of bound!")
-			//err = ErrorIllegalIndex
 		}
 	}
 
@@ -145,11 +141,10 @@ func (M *SparseMatrix) Set(i, j uint, v float64) {
 		j = M.cols + j
 		if j < 0 {
 			log.Fatal("index out of bound!")
-			//err = ErrorIllegalIndex
 		}
 	}
 
-	if v == nil {
+	if v == 0 {
 		delete(M.elements, i*M.step+j+M.offset)
 	} else {
 		M.elements[i*M.step+j+M.offset] = v
@@ -157,7 +152,7 @@ func (M *SparseMatrix) Set(i, j uint, v float64) {
 }
 
 func (M *SparseMatrix) SetValue(index uint, v float64) {
-	if v == nil {
+	if v == 0 {
 		delete(M.elements, index)
 	} else {
 		M.elements[index] = v
