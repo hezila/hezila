@@ -1,5 +1,9 @@
 package math
 
+import (
+	log "github.com/golang/glog"
+)
+
 /*
 A space-optimized structure for pivot matrices, ie a matrix with
 exactly one 1 in each row and each column.
@@ -20,18 +24,18 @@ func (P *PivotMatrix) Array() []float64 {
 	return nil
 }
 
-func (P *PivotMatrix) Get(i, j uint) (v float64, err error) {
+func (P *PivotMatrix) Get(i, j uint) (v float64) {
 	if i < 0 {
 		i = P.rows + i
 		if i < 0 {
-			err = ErrorIllegalIndex
+			log.Fatal("index out of bound!")
 		}
 	}
 
 	if j < 0 {
 		j = P.cols + j
 		if j < 0 {
-			err = ErrorIllegalIndex
+			log.Fatal("index out of bound!")
 		}
 	}
 	
