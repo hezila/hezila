@@ -165,7 +165,7 @@ func (M *SparseMatrix) Set(i, j uint, v float64) {
 		if j < 0 {
 			log.Fatal("index out of bound!")
 		}
-
+    }
 
 	index = i*M.step + j + M.offset
 	if v == 0 {
@@ -198,7 +198,7 @@ func (M *SparseMatrix) Indices() (out chan uint) {
 	return
 }
 
-
+	
 func (M *SparseMatrix) SubMatrix(i, j, rows, cols uint) (S *SparseMatrix, err error) {
 	if i < 0 || j < 0 || rows <= 0 || cols <= 0 ||
 		(i+rows) > M.rows || (j+cols) > M.cols {
