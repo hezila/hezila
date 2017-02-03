@@ -20,8 +20,8 @@ GO=go
 .PHONY: all
 all: lint test
 
-.PHONY: setup
-setup:
+.PHONY: setup-ci
+setup-ci:
 	@echo "Installing Glide and locked dependencies..."
 	glide --version || go get -u -f github.com/Masterminds/glide
 	glide install
