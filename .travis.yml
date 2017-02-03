@@ -13,7 +13,7 @@ services:
   - redis
 
 install:
-  - make dependencies
+  - make setup-ci
 
 script:
   - make lint

@@ -12,11 +12,16 @@ ifneq ($(filter $(LINTABLE_MINOR_VERSION), $(GO_MINOR_VERSION)),)
 	SHOULD_LINT := true
 endif
 
+# Golang Flags
+GOPATH ?= $(GOPATH:):./vendor
+GOFLAGS ?= $(GOFLAGS:)
+GO=go
+
 .PHONY: all
 all: lint test
 
-.PHONY: dependencies
-dependencies:
+.PHONY: setup
+setup:
 	@echo "Installing Glide and locked dependencies..."
 	glide --version || go get -u -f github.com/Masterminds/glide
 	glide install
@@ -82,9 +87,9 @@ ifeq ($(BUILD_NUMBER),)
 endif
 
 # Golang Flags
-GOPATH ?= $(GOPATH:):./vendor
-GOFLAGS ?= $(GOFLAGS:)
-GO=go
+#GOPATH ?= $(GOPATH:):./vendor
+#GOFLAGS ?= $(GOFLAGS:)
+#GO=go
 
 # Output paths
 DIST_ROOT=dist
@@ -97,16 +102,16 @@ build:
 	${HEZILA_GO_EXECUTABLE} build -o glide -ldflags "-X main.version=${VERSION}" hezila.go
 
 
-setup: setup-ci
-	go get -u github.com/githubnemo/CompileDaemon
-	go get -u github.com/jstemmer/go-junit-report
-	go get -u golang.org/x/tools/cmd/goimports
+#setup: setup-ci
+#	go get -u github.com/githubnemo/CompileDaemon
+#	go get -u github.com/jstemmer/go-junit-report
+#	go get -u golang.org/x/tools/cmd/goimports
 
-setup-ci:
-	go get -u github.com/Masterminds/glide
-	go get -u github.com/alecthomas/gometalinter
-	gometalinter --install
-	glide install --strip-vendor
+#setup-ci:
+#	go get -u github.com/Masterminds/glide
+#	go get -u github.com/alecthomas/gometalinter
+#	gometalinter --install
+#	glide install --strip-vendor
 
 
 fmt:
