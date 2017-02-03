@@ -76,15 +76,18 @@ func (M *DenseMatrix) Array() []float64 {
 	return a
 }
 
-func (M *DenseMatrix) RowSlice(row uint) ([]float64, error) {
+func (M *DenseMatrix) RowSlice(row uint) []float64 {
 	if row < 0 || row > M.rows - 1 {
-		return nil, ErrorIllegalIndex
+		log.Fatal("index out of bound!")
 	}
-	return (M.elements[row*M.step : row*M.step+M.cols], nil)
+	return M.elements[row*M.step : row*M.step+M.cols]
 }
 
 
 func (M *DenseMatrix) ColSlice(col uint) []float64 {
+	if col < 0 || col > M.cols -1 {
+		log.Fatal("index out of bound!")
+	}
 	a := make([]float64, M.rows)
 	for i := uint(0); i < M.rows; i++ {
 		a[i] = M.elements[i*M.step + col]
