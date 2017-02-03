@@ -175,12 +175,22 @@ func (M *SparseMatrix) Set(i, j uint, v float64) {
 	}
 }
 
-func (M *SparseMatrix) SetValue(index uint, v float64) {
+func (M *SparseMatrix) SetValue(index uint, v float64) (error){
+	i, j, err := GetRowIndex(index)
+	if err != nil {
+		log.Fatal("index error!")
+	}
+	if i > M.rows - 1 || j > M.cols - 1 {
+		err := ErrorIllegalIndex
+		log.Fatal("index error!")
+	}
+
 	if v == 0 {
 		delete(M.elements, index)
-	} else index < M.rows * M.cols {
+	} else {
 		M.elements[index] = v
 	}
+	return err
 }
 
 func (M *SparseMatrix) Indices() (out chan uint) {
