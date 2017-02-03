@@ -36,7 +36,7 @@ func MakeDenseMatrix(elements []float64, rows, cols uint) *DenseMatrix {
 	A.rows = rows
 	A.cols = cols
 	A.step = cols
-	
+
 	A.elements = elements
 	return A
 }
@@ -45,7 +45,7 @@ func MakeDenseMatrixStacked(data [][]float64) *DenseMatrix {
 	rows := uint(len(data))
 	cols := uint(len(data[0]))
 	elements := make([]float64, rows*cols)
-	
+
 	for i := uint(0); i < rows; i++ {
 		for j := uint(0); j < cols; j++ {
 			elements[i*cols+j] = data[i][j]
@@ -66,7 +66,7 @@ func (M *DenseMatrix) Array() []float64 {
 	if M.step == M.cols {
 		return M.elements[0 : M.rows*M.cols]
 	}
-	
+
 	a := make([]float64, M.rows*M.cols)
 	for i := uint(0); i < M.rows; i++ {
 		for j := uint(0); j < M.cols; j++ {
@@ -77,20 +77,19 @@ func (M *DenseMatrix) Array() []float64 {
 }
 
 func (M *DenseMatrix) RowSlice(row uint) []float64 {
-	if row < 0 || row > M.rows - 1 {
+	if row < 0 || row > M.rows-1 {
 		log.Fatal("index out of bound!")
 	}
 	return M.elements[row*M.step : row*M.step+M.cols]
 }
 
-
 func (M *DenseMatrix) ColSlice(col uint) []float64 {
-	if col < 0 || col > M.cols -1 {
+	if col < 0 || col > M.cols-1 {
 		log.Fatal("index out of bound!")
 	}
 	a := make([]float64, M.rows)
 	for i := uint(0); i < M.rows; i++ {
-		a[i] = M.elements[i*M.step + col]
+		a[i] = M.elements[i*M.step+col]
 	}
 	return a
 }
@@ -109,11 +108,11 @@ func (M *DenseMatrix) Get(i, j uint) (v float64) {
 			log.Fatal("index out of bound!")
 		}
 	}
-	
+
 	if i >= M.rows || j >= M.cols {
 		log.Fatal("index out of bound!")
 	}
-	v = M.elements[i*M.step +j]
+	v = M.elements[i*M.step+j]
 	return
 }
 
@@ -140,7 +139,6 @@ func (M *DenseMatrix) Set(i, j uint, v float64) {
 func (M *DenseMatrix) SetValue(index uint, v float64) {
 	M.elements[index] = v
 }
-
 
 // Get a submatrix starting at i, j with rows rows and cols columns
 func (M *DenseMatrix) SubMatrix(i, j, rows, cols uint) (A *DenseMatrix, err error) {

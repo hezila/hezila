@@ -212,7 +212,7 @@ func String(M MatrixRO) string {
 				vs = " " + vs
 			}
 			s += vs
-		 	if i != M.Rows()-1 || j != M.Cols()-1 {
+			if i != M.Rows()-1 || j != M.Cols()-1 {
 				s += ","
 			}
 			if j != M.Cols()-1 {

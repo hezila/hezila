@@ -68,7 +68,7 @@ func (A *DenseMatrix) Inverse() (*DenseMatrix, error) {
 		if j != i {
 			aug.SwapRows(i, j)
 		}
-		if  aug.Get(i, i) == 0 {
+		if aug.Get(i, i) == 0 {
 			return nil, ExceptionSingular
 		}
 		aug.ScaleRow(i, 1.0/aug.Get(i, i))

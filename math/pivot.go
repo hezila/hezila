@@ -40,7 +40,7 @@ func (P *PivotMatrix) Get(i, j uint) (v float64) {
 			log.Fatal("index out of bound!")
 		}
 	}
-	
+
 	if P.pivots[j] == i {
 		v = 1
 	}

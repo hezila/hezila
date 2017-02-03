@@ -1,12 +1,11 @@
 package utils
+
 // https://github.com/timtadh/data-structures/tree/master/exc
 import (
 	"fmt"
 	"runtime"
 	"strings"
 )
-
-import ()
 
 // The *Error struct wraps up a regular error (could be any error) and a stack
 // trace. The idea is that it track where the error was created.
