@@ -202,13 +202,13 @@ func (M *SparseMatrix) Indices() (out chan uint) {
 }
 
 
-func (M *SparseMatrix) SubMatrix(i, j, rows, cols uint) (*SparseMatrix, err error) {
+func (M *SparseMatrix) SubMatrix(i, j, rows, cols uint) (S *SparseMatrix, err error) {
 	if i < 0 || j < 0 || rows <= 0 || cols <= 0 ||
 		(i+rows) > M.rows || (j+cols) > M.cols {
 		err = ErrorIllegalIndex
 	}
 
-	S := ZerosSparse(rows, cols)
+	S = ZerosSparse(rows, cols)
 	for r := uint(0); r < rows; r++ {
 		for c := uint(0); c < cols; c++ {
 			index = (i+r)*M.step + (j+c) + M.offset
@@ -217,7 +217,7 @@ func (M *SparseMatrix) SubMatrix(i, j, rows, cols uint) (*SparseMatrix, err erro
 			}
 		}
 	}
-	return (S, err)
+	return
 }
 
 func (M *SparseMatrix) ColVector(j uint) *SparseMatrix {

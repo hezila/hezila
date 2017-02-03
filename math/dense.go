@@ -143,13 +143,13 @@ func (M *DenseMatrix) SetValue(index uint, v float64) {
 
 
 // Get a submatrix starting at i, j with rows rows and cols columns
-func (M *DenseMatrix) SubMatrix(i, j, rows, cols uint) (*DenseMatrix, err error) {
+func (M *DenseMatrix) SubMatrix(i, j, rows, cols uint) (A *DenseMatrix, err error) {
 	if i < 0 || j < 0 || rows <= 0 || cols <= 0 ||
 		(i+rows) > M.rows || (j+cols) > M.cols {
 		err = ErrorIllegalIndex
 	}
 
-	A := new(DenseMatrix)
+	A = new(DenseMatrix)
 	A.elements = make([]float64, rows*cols)
 	A.step = cols
 	A.rows = rows
@@ -159,7 +159,7 @@ func (M *DenseMatrix) SubMatrix(i, j, rows, cols uint) (*DenseMatrix, err error)
 			A.elements[r*A.step+c] = M.elements[(i+r)*M.step+j+c]
 		}
 	}
-	return (A, err)
+	return
 }
 
 // Get a submatrix starting at i,j with rows rows and cols columns. Changes to
@@ -188,7 +188,7 @@ func (M *DenseMatrix) ColVector(j uint) *DenseMatrix {
 }
 
 func (M *DenseMatrix) RowVector(i uint) *DenseMatrix {
-	return M.SubMatrix(i, 0, 1, M.cols
+	return M.SubMatrix(i, 0, 1, M.cols)
 }
 
 func (M *DenseMatrix) Copy() *DenseMatrix {
