@@ -119,7 +119,7 @@ func (M *SparseMatrix) Get(i, j uint) float64 {
 	return v
 }
 
-func (M *SparseMatrix) Exist(i, j uint) (v float64, err error) {
+func (M *SparseMatrix) Exist(i, j uint) bool {
 	if i < 0 {
 		i = M.rows + i
 		if i < 0 {
@@ -139,7 +139,10 @@ func (M *SparseMatrix) Exist(i, j uint) (v float64, err error) {
 	}
 
 	v, err = M.elements[i*M.step+j+M.offset]
-	return
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 // Looks up an element given its element index

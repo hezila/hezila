@@ -24,11 +24,9 @@ func (A *SparseMatrix) SwapRows(r1, r2 uint) {
 Scale a row by a scalar.
 */
 func (A *SparseMatrix) ScaleRow(r uint, f float64) {
-	for index, value := range A.elements {
-		i, j := A.GetRowColIndex(index)
-		if i == r {
-			A.Set(i, j, value*f)
-		}
+	for j := uint(0); j < A.cols; j++ {
+		v := A.Get(r, j)
+		A.Set(r, j, v*f)
 	}
 }
 
@@ -36,27 +34,21 @@ func (A *SparseMatrix) ScaleRow(r uint, f float64) {
 Add a multiple of row rs to row rd.
 */
 func (A *SparseMatrix) ScaleAddRow(rd, rs uint, f float64) {
-	//	for index, value := range A.elements {
-	//		i, j := A.GetRowColIndex(index)
-	//		if i == rs {
-	//			A.Set(rd, j, A.Get(rd, j)+value*f)
-	//		}
-	//	}
-
 	for j := uint(0); j < A.cols; j++ {
-		if val, ok := A.Get(rs, j); ok {
-			if old, okd := A.Get(rdd, j); okd {
-				val += old
-			}
-			A.Set(rd, j, val)
-		}
+		v := A.Get(rs, j)
+		A.Set(rd, j, A.Get(rd, j) + v*f)
 	}
 }
 
 func (A *SparseMatrix) Symmetric() bool {
+	if A.rows != A.cols {
+		return false
+	}
+	
 	for index, value := range A.elements {
 		if i, j := A.GetRowColIndex(index); i != j {
-			if val, ok := A.Get(j, i); ok != nil || value != val {
+			val := A.Get(j, i)
+			if value != val {
 				return false
 			}
 		}

@@ -92,11 +92,10 @@ func (A *DenseMatrix) Det() float64 {
 
 func (A *DenseMatrix) Trace() float64 { return sum(A.DiagonalCopy()) }
 
-func (A *DenseMatrix) OneNorm() (ε float64) {
-	var i, j uint
-	for i = 0; i < A.rows; i++ {
-		for j = 0; j < A.cols; j++ {
-			ε = max(ε, A.Get(i, j))
+func (A *DenseMatrix) OneNorm() (e float64) {
+	for i := uint(0); i < A.rows; i++ {
+		for j := uint(0); j < A.cols; j++ {
+			e = max(e, A.Get(i, j))
 		}
 	}
 	return
@@ -104,9 +103,8 @@ func (A *DenseMatrix) OneNorm() (ε float64) {
 
 func (A *DenseMatrix) TwoNorm() float64 {
 	var sum float64 = 0
-	var i, j uint
-	for i = 0; i < A.rows; i++ {
-		for j = 0; j < A.cols; j++ {
+	for i := uint(0); i < A.rows; i++ {
+		for j := uint(0); j < A.cols; j++ {
 			v := A.elements[i*A.step+j]
 			sum += v * v
 		}
@@ -115,9 +113,8 @@ func (A *DenseMatrix) TwoNorm() float64 {
 }
 
 func (A *DenseMatrix) InfinityNorm() (e float64) {
-	var i, j uint
-	for i = 0; i < A.rows; i++ {
-		for j = 0; j < A.cols; j++ {
+	for i := uint(0); i < A.rows; i++ {
+		for j := uint(0); j < A.cols; j++ {
 			e += A.Get(i, j)
 		}
 	}
@@ -126,9 +123,8 @@ func (A *DenseMatrix) InfinityNorm() (e float64) {
 
 func (A *DenseMatrix) Transpose() *DenseMatrix {
 	B := Zeros(A.Cols(), A.Rows())
-	var i, j uint
-	for i = 0; i < A.Rows(); i++ {
-		for j = 0; j < A.Cols(); j++ {
+	for i := uint(0); i < A.Rows(); i++ {
+		for j := uint(0); j < A.Cols(); j++ {
 			B.Set(j, i, A.Get(i, j))
 		}
 	}
@@ -140,9 +136,8 @@ func (A *DenseMatrix) TransposeInPlace() (err error) {
 		err = errors.New("Can only transpose a square matrix in place")
 		return
 	}
-	var i, j uint
-	for i = 0; i < A.rows; i++ {
-		for j = 0; j < i; j++ {
+	for i := uint(0); i < A.rows; i++ {
+		for j := uint(0); j < i; j++ {
 			tmp := A.Get(i, j)
 			A.Set(i, j, A.Get(j, i))
 			A.Set(j, i, tmp)
@@ -152,29 +147,29 @@ func (A *DenseMatrix) TransposeInPlace() (err error) {
 }
 
 func solveLower(A *DenseMatrix, b Matrix) *DenseMatrix {
-	x := make([]float64, A.Cols())
-	var i, j uint
-	for i = 0; i < A.Rows(); i++ {
+	x := make([]float64, A.cols)
+
+	for i := uint(0); i < A.rows; i++ {
 		x[i] = b.Get(i, 0)
-		for j = 0; j < i; j++ {
+		for j := uint(0); j < i; j++ {
 			x[i] -= x[j] * A.Get(i, j)
 		}
 		//the diagonal defined to be ones
 		//x[i] /= A.Get(i, i);
 	}
-	return MakeDenseMatrix(x, A.Cols(), 1)
+	return MakeDenseMatrix(x, A.cols, 1)
 }
 
 func solveUpper(A *DenseMatrix, b Matrix) *DenseMatrix {
-	x := make([]float64, A.Cols())
-	for i := A.Rows() - 1; i >= 0; i-- {
+	x := make([]float64, A.cols)
+	for i := A.rows - 1; i >= 0; i-- {
 		x[i] = b.Get(i, 0)
-		for j := i + 1; j < A.Cols(); j++ {
+		for j := i + 1; j < A.cols; j++ {
 			x[i] -= x[j] * A.Get(i, j)
 		}
 		x[i] /= A.Get(i, i)
 	}
-	return MakeDenseMatrix(x, A.Cols(), 1)
+	return MakeDenseMatrix(x, A.cols, 1)
 }
 
 func (A *DenseMatrix) Solve(b MatrixRO) (*DenseMatrix, error) {
